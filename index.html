@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,7 +19,7 @@
           },
           colors: {
             brand: {
-              primary: '#0087FC', 
+              primary: '#0087FC',
               secondary: '#0076C7',
               dark: '#005E91',
               bg: '#F2F6FF',
@@ -27,84 +27,635 @@
               accent: '#C12D2D'
             },
             dark: {
-              bg: '#000000',      // Pure Black
-              card: 'rgba(0, 0, 0, 0.6)',    // Translucent black
-              border: 'rgba(0, 135, 252, 0.3)',  // Subtle blueish border for glow base
-              text: '#FFFFFF',    // High contrast white
-              subtext: '#E5E5E5',  // Off-white
-              highlight: '#38bdf8' // Sky blue for dark mode contrast (was dark blue)
+              bg: '#000000',
+              card: 'rgba(0, 0, 0, 0.6)',
+              border: 'rgba(0, 135, 252, 0.3)',
+              text: '#FFFFFF',
+              subtext: '#E5E5E5',
+              highlight: '#38bdf8'
             }
           },
           boxShadow: {
             'neon': '0 0 10px rgba(0, 135, 252, 0.15), 0 0 20px rgba(0, 135, 252, 0.1)',
-            'neon-hover': '0 0 15px rgba(0, 135, 252, 0.4), 0 0 30px rgba(0, 135, 252, 0.2)',
-          },
-          backdropBlur: {
-            xs: '2px',
           },
           animation: {
             'fade-in': 'fadeIn 0.8s ease-out forwards',
             'slide-up': 'slideUp 0.6s ease-out forwards',
             'progress': 'progress 1.5s ease-out forwards',
-            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
           },
           keyframes: {
-            fadeIn: {
-              '0%': { opacity: '0', transform: 'translateY(20px)' },
-              '100%': { opacity: '1', transform: 'translateY(0)' },
-            },
-            slideUp: {
-              '0%': { opacity: '0', transform: 'translateY(30px)' },
-              '100%': { opacity: '1', transform: 'translateY(0)' },
-            },
-            progress: {
-              '0%': { width: '0' },
-            }
+            fadeIn: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+            slideUp: { '0%': { opacity: '0', transform: 'translateY(30px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+            progress: { '0%': { width: '0' } }
           }
         }
       }
     }
   </script>
   <style>
-    .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-    }
-    .scrollbar-hide {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
-    .glass-effect {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-    }
-    .dark .glass-effect {
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(0, 135, 252, 0.2);
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-    }
-    /* Input Date Dark Mode Fix */
-    .dark input[type="date"] {
-      color-scheme: dark;
-    }
-    .dark input[type="file"] {
-      color: white;
-    }
+    .glass-effect { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+    .dark .glass-effect { background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0, 135, 252, 0.2); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .dark input[type="date"], .dark input[type="file"] { color-scheme: dark; }
   </style>
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
 </head>
-<body class="bg-white dark:bg-dark-bg font-inter text-[#001d26] dark:text-dark-text antialiased overflow-x-hidden transition-colors duration-300">
-  <div id="root"></div>
-<script type="module" src="/index.tsx"></script>
+<body class="bg-white dark:bg-dark-bg font-inter text-brand-text dark:text-dark-text antialiased overflow-x-hidden transition-colors duration-300">
+  <div class="fixed top-0 left-0 w-full h-[600px] bg-gradient-to-b from-blue-50 to-white dark:from-black dark:to-dark-bg -z-10 pointer-events-none opacity-60"></div>
+
+  <header class="fixed top-6 left-0 right-0 z-50 px-4">
+    <nav class="glass-effect border border-[#b6d0ff] dark:border-dark-border rounded-full shadow px-4 md:px-6 py-3 max-w-[965px] h-[54px] mx-auto flex items-center justify-between transition-all duration-300">
+      <h1 id="pageTitle" class="text-base md:text-xl font-bold text-brand-dark dark:text-brand-primary tracking-[-0.5px] leading-5 cursor-pointer">Buyer Persona</h1>
+      <div class="flex items-center gap-2">
+        <button data-view="HOME" class="nav-btn px-3 md:px-4 h-8 md:h-9 rounded-full font-semibold text-xs md:text-sm leading-5 transition-all duration-300">Inicio</button>
+        <button data-view="PORTFOLIO" class="nav-btn px-3 md:px-4 h-8 md:h-9 rounded-full font-semibold text-xs md:text-sm leading-5 transition-all duration-300">Portafolio</button>
+        <button data-view="CHATBOT" class="nav-btn px-3 h-8 md:h-9 rounded-full font-semibold text-xs md:text-sm leading-5 transition-colors text-brand-accent">ChatBot</button>
+        <button data-view="CPANEL" class="nav-btn hidden sm:inline px-2 text-[10px] font-mono opacity-70 hover:opacity-100" title="Panel de Control">CP</button>
+        <button id="darkToggle" class="ml-1 p-1.5 rounded-full text-brand-dark dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors" title="Modo oscuro">
+          <svg id="sunIcon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <svg id="moonIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="pt-24 md:pt-[110px]">
+    <section id="homeSection" class="min-h-screen px-4 md:px-6 max-w-[1080px] mx-auto pb-16"></section>
+    <section id="portfolioSection" class="hidden min-h-screen px-4 md:px-6 max-w-[1200px] mx-auto pb-16"></section>
+    <section id="chatSection" class="hidden min-h-screen px-4 md:px-6 max-w-[1000px] mx-auto pb-16 flex items-center justify-center text-center">
+      <div class="bg-white dark:bg-dark-card border border-[#b6d0ff] dark:border-dark-border rounded-2xl p-8 shadow-neon max-w-xl">
+        <div class="text-5xl mb-4">🤖</div>
+        <h2 class="text-2xl font-bold text-brand-dark dark:text-dark-highlight mb-2">Chatbot disponible por separado</h2>
+        <p class="text-slate-600 dark:text-dark-subtext">Este proyecto está pensado como página estática. El chatbot se mantiene como servicio independiente.</p>
+      </div>
+    </section>
+    <section id="cpanelSection" class="hidden min-h-screen px-4 md:px-6 max-w-[900px] mx-auto pb-16"></section>
+  </main>
+
+  <footer class="border-t border-[#b6d0ff]/50 dark:border-dark-border mt-auto py-6 text-center text-sm text-slate-600 dark:text-dark-subtext">
+    <p>Jamileth Jackelinne Guerra Aguilar · Estratega Publicitaria & AI Hybrid</p>
+  </footer>
+
+  <div id="projectModal" class="hidden fixed inset-0 z-[100] items-center justify-center p-4">
+    <div class="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-md"></div>
+    <div class="relative bg-white dark:bg-black border border-[#b6d0ff] dark:border-white/20 w-full max-w-4xl max-h-[90vh] rounded-3xl shadow-2xl overflow-y-auto">
+      <button id="closeModal" class="absolute top-4 right-4 z-10 p-2 bg-white/50 dark:bg-black/50 rounded-full hover:bg-white dark:hover:bg-dark-card transition-colors">
+        <svg class="w-6 h-6 text-brand-dark dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <script>
+    const persona = {
+      name: "Jamileth Jackelinne Guerra Aguilar",
+      role: "Estratega Publicitaria & AI Hybrid",
+      cedula: "8-1008-914",
+      age: "21 años",
+      status: "Soltera",
+      location: "Panamá, Villa Daniela",
+      phone1: "6604-3511",
+      phone2: "6530-0791",
+      quote: "Si tienes un problema, y puedes definirlo, ya tienes la mitad resuelto.",
+      image: "https://c.animaapp.com/AONx6myv/img/mask-group@2x.png",
+      fichaPersonal: { carrera: "Lic. Publicidad", curso: "Cámara reportaje", diplomado: "IE y Comunicación Empática" },
+      intereses: { pasion: "Folclore panameño", hobby: "Videojuegos, Aprendizaje continuo" },
+      pro: { motivacion: "Trascender, Coherencia, Curiosidad", oportunidad: "Emoción+razón, Autenticidad+valor", deseo: "Libertad, Inspirar a otros, Conectar mentes" },
+      contra: { frustracion: "Incomprensión, Desorden, Autoexigencia", miedo: "Estancamiento, Ruido mental" }
+    };
+
+    const discData = [
+      { name: 'Dominio', percentage: 32 },
+      { name: 'Influencia', percentage: 25 },
+      { name: 'Estabilidad', percentage: 20 },
+      { name: 'Cumplimiento', percentage: 23 },
+    ];
+
+    const competencies = [
+      { name: 'Análisis Estratégico & Pensamiento Crítico', percentage: 85 },
+      { name: 'Resiliencia', percentage: 78 },
+      { name: 'Toma de decisiones', percentage: 80 },
+      { name: 'Adaptabilidad Tecnológica', percentage: 95 },
+      { name: 'Liderazgo & Trabajo en Equipo', percentage: 90 },
+    ];
+
+    let projects = [
+      {
+        id: '1',
+        title: 'Plan Aurora 2025',
+        subtitle: 'Replanteamiento estratégico para la expansión de Visela en LATAM con enfoque data-driven y adopción progresiva de IA.',
+        category: 'Estrategia',
+        tags: ['may 2025', 'Real'],
+        thumbnailUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2426&auto=format&fit=crop',
+        date: 'may 2025',
+        sections: [
+          { id: 's1', title: 'Introducción', type: 'TEXT', content: 'Visela busca expandir su cuota de mercado en Latinoamérica utilizando tecnologías emergentes.' },
+          { id: 's2', title: 'Brief Estratégico', type: 'BRIEF', content: { antecedentes: 'Empresa líder en software B2B en Europa, poca presencia en LATAM.', historiaProducto: 'Suite de gestión creada en 2010.', caracteristicas: 'SaaS, Modular, AI-integrated.', beneficios: 'Optimización de flujos de trabajo en un 40%.', distribucion: 'Venta directa digital y partners locales.', target: 'CTOs y Gerentes de Operaciones en empresas medianas.', posicionamiento: 'La solución más inteligente para escalar.', precio: 'Suscripción Tiered (Basic, Pro, Enterprise).', medio: 'LinkedIn Ads, Webinars, SEO.', competencia: 'SAP, Oracle (en segmento alto), soluciones locales.' } }
+        ]
+      },
+      {
+        id: '2',
+        title: 'Identidad Nova',
+        subtitle: 'Sistema visual retrofuturista para una fintech de economía circular.',
+        category: 'Diseño',
+        tags: ['nov 2024', 'Ficticio'],
+        thumbnailUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2670&auto=format&fit=crop',
+        date: 'nov 2024',
+        sections: [ { id: 's1', title: 'Concepto Visual', type: 'TEXT', content: 'Fusión de estética 80s con minimalismo moderno para denotar sostenibilidad y tecnología.' } ]
+      },
+      {
+        id: '3',
+        title: 'Órbita Dashboard',
+        subtitle: 'Rediseño de dashboard modular con foco en experiencias micro-interactivas y accesibilidad AA.',
+        category: 'Website',
+        tags: ['ene 2025', 'Estudio de Caso'],
+        thumbnailUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2670&auto=format&fit=crop',
+        date: 'ene 2025',
+        sections: []
+      },
+      {
+        id: '4',
+        title: 'Pulse Activación 360°',
+        subtitle: 'Activación inmersiva con realidad mixta para lanzar la línea Pulse Experience.',
+        category: 'Varios',
+        tags: ['sept 2023', 'Real'],
+        thumbnailUrl: 'https://images.unsplash.com/photo-1626379953822-baec19c3accd?q=80&w=2670&auto=format&fit=crop',
+        date: 'sept 2023',
+        sections: [ { id: 'f1', title: 'Flowchart del Evento', type: 'FLOWCHART', content: { objetivo: 'Lograr 500 demos en vivo durante el fin de semana de lanzamiento.', estrategiaMedios: 'Campaña teaser en Instagram + Influencers Tech.', presupuesto: '$15,000 USD', medidas: 'KPIs: Foot traffic, Demos completados, Social Mentions.' } } ]
+      }
+    ];
+
+    let currentView = 'HOME';
+    const navButtons = document.querySelectorAll('.nav-btn');
+    const sections = {
+      HOME: document.getElementById('homeSection'),
+      PORTFOLIO: document.getElementById('portfolioSection'),
+      CHATBOT: document.getElementById('chatSection'),
+      CPANEL: document.getElementById('cpanelSection')
+    };
+
+    function updateNav() {
+      document.getElementById('pageTitle').textContent = currentView === 'HOME' ? 'Buyer Persona' : currentView === 'PORTFOLIO' ? 'Portafolio' : currentView === 'CHATBOT' ? 'ChatBot - Jactsu' : 'Panel de Control';
+      navButtons.forEach(btn => {
+        const target = btn.dataset.view;
+        btn.classList.remove('bg-brand-primary','text-white','shadow-md','underline','opacity-100');
+        if (target === currentView) {
+          if (target === 'CHATBOT') {
+            btn.classList.add('underline','opacity-100');
+          } else {
+            btn.classList.add('bg-brand-primary','text-white','shadow-md');
+          }
+        } else {
+          btn.classList.add('text-brand-dark','dark:text-dark-text');
+        }
+      });
+      Object.entries(sections).forEach(([key, el]) => {
+        if (el) el.classList.toggle('hidden', key !== currentView);
+      });
+    }
+
+    navButtons.forEach(btn => btn.addEventListener('click', () => {
+      currentView = btn.dataset.view;
+      updateNav();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }));
+
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('prefers-dark', isDark ? '1' : '0');
+      document.getElementById('sunIcon').classList.toggle('hidden', !isDark);
+      document.getElementById('moonIcon').classList.toggle('hidden', isDark);
+    }
+
+    document.getElementById('darkToggle').addEventListener('click', toggleDarkMode);
+    if (localStorage.getItem('prefers-dark') === '1') toggleDarkMode();
+
+    function renderProfile() {
+      const container = document.getElementById('homeSection');
+      container.innerHTML = `
+        <div class="hidden lg:block relative h-[673px]">
+          <div class="absolute left-[25px] top-[26px] bg-brand-primary rounded-md w-16 h-6 flex items-center justify-center z-20">
+            <span class="text-white text-xs font-bold">PERFIL</span>
+          </div>
+          <div class="bg-white dark:bg-dark-card border border-[#f2f6ff] dark:border-dark-border rounded-2xl w-[518px] h-[449px] absolute left-0 top-0 overflow-visible shadow-sm">
+            <h2 class="absolute left-[25px] top-[62px] text-4xl font-bold text-brand-dark dark:text-brand-secondary leading-[45px] tracking-[-0.5px]">Jamileth</h2>
+            <h2 class="absolute left-[25px] top-[107px] text-4xl font-bold text-brand-dark dark:text-brand-secondary leading-[45px] tracking-[-0.5px]">Jackelinne</h2>
+            <h3 class="absolute left-[25px] top-[156px] text-[30px] font-bold text-brand-secondary dark:text-brand-primary leading-[38px] tracking-[-0.5px]">Guerra Aguilar</h3>
+            <p class="absolute left-[25px] top-[210px] text-sm font-semibold text-brand-dark dark:text-brand-secondary leading-5">${persona.role}</p>
+            <div class="absolute left-[25px] top-[254px] w-[230px] h-[50px] bg-brand-bg dark:bg-dark-bg rounded-lg">
+              <p class="absolute left-2 top-2 text-xs font-semibold text-brand-secondary dark:text-brand-primary leading-4">CÉDULA</p>
+              <p class="absolute left-2 top-[26px] text-xs font-semibold text-brand-text dark:text-white leading-4">${persona.cedula}</p>
+            </div>
+            <div class="absolute left-[263px] top-[254px] w-[230px] h-[50px] bg-brand-bg dark:bg-dark-bg rounded-lg">
+              <p class="absolute left-2 top-2 text-xs font-semibold text-brand-secondary dark:text-brand-primary leading-4">EDAD</p>
+              <p class="absolute left-2 top-[26px] text-xs font-semibold text-brand-text dark:text-white leading-4">${persona.age}</p>
+            </div>
+            <div class="absolute left-[25px] top-[312px] w-[230px] h-[50px] bg-brand-bg dark:bg-dark-bg rounded-lg">
+              <p class="absolute left-2 top-2 text-xs font-semibold text-brand-secondary dark:text-brand-primary leading-4">ESTADO</p>
+              <p class="absolute left-2 top-[26px] text-xs font-semibold text-brand-text dark:text-white leading-4">${persona.status}</p>
+            </div>
+            <div class="absolute left-[263px] top-[312px] w-[230px] h-[50px] bg-brand-bg dark:bg-dark-bg rounded-lg">
+              <p class="absolute left-2 top-2 text-xs font-semibold text-brand-secondary dark:text-brand-primary leading-4">UBICACIÓN</p>
+              <p class="absolute left-2 top-[26px] text-xs font-semibold text-brand-text dark:text-white leading-4">${persona.location}</p>
+            </div>
+            <div class="absolute left-[25px] top-[371px] border-t border-[#f2f6ff] dark:border-dark-border w-[469px] h-[61px]">
+              <p class="absolute left-[2px] top-[11px] text-xs font-semibold text-brand-secondary dark:text-brand-primary leading-4">CONTACTO</p>
+              <p class="absolute left-[2px] top-[33px] text-xs font-semibold text-brand-secondary dark:text-brand-secondary leading-4">${persona.phone1}</p>
+              <p class="absolute left-[2px] top-[51px] text-xs font-semibold text-brand-secondary dark:text-brand-secondary leading-4">${persona.phone2}</p>
+            </div>
+            <div class="absolute left-[156px] top-[382px] bg-brand-bg dark:bg-dark-bg border border-[#f2f6ff] dark:border-dark-border rounded-[10px] w-[344px] h-[57px] flex flex-col items-center justify-center">
+              <p class="text-[11.5px] font-semibold text-brand-dark dark:text-brand-secondary font-playfair italic text-center leading-3 tracking-[-0.02em] w-[333px]">${persona.quote}</p>
+              <p class="text-[9px] italic font-light text-brand-dark dark:text-brand-primary mt-1">Filosofía Personal</p>
+            </div>
+            <img src="${persona.image}" alt="Profile" class="absolute top-[-22px] left-[249px] w-[276px] h-[272px] object-cover pointer-events-none rounded-full z-10 shadow-[0_0_30px_rgba(0,135,252,0.4)] dark:shadow-[0_0_50px_rgba(0,135,252,0.8)]" />
+          </div>
+          <div class="bg-white dark:bg-dark-card border border-[#f2f6ff] dark:border-dark-border rounded-2xl w-[452px] h-[181px] absolute left-[538px] top-0 shadow-sm">
+            <h3 class="absolute left-[21px] top-5 text-xs font-semibold text-brand-secondary dark:text-brand-primary leading-4">PERFIL DISC</h3>
+            <div class="grid grid-cols-2 gap-x-[30px] gap-y-4 absolute left-[21px] top-[48px]">
+              ${discData.map(item => `
+                <div class="disc-item">
+                  <p class="text-xs font-semibold text-brand-dark dark:text-brand-secondary leading-4 mb-[5px]">${item.name}</p>
+                  <div class="w-[200px] h-1 bg-brand-bg dark:bg-dark-bg rounded-full overflow-hidden">
+                    <div class="h-full bg-brand-secondary rounded-full animate-progress" style="width:${item.percentage}%"></div>
+                  </div>
+                  <p class="text-xs font-bold text-brand-secondary dark:text-brand-primary leading-4 mt-1">${item.percentage}%</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <div class="bg-white dark:bg-dark-card border border-[#f2f6ff] dark:border-dark-border rounded-2xl w-[452px] h-[261px] absolute left-[538px] top-[188px] shadow-sm">
+            <h3 class="absolute left-[27px] top-5 text-sm font-semibold text-brand-secondary dark:text-brand-primary leading-4">COMPETENCIAS</h3>
+            <div class="absolute left-0 top-[52px] w-full">
+              ${competencies.map(comp => `
+                <div class="flex items-center justify-between h-[31px] border-b border-[#f2f6ff] dark:border-dark-border px-[27px]">
+                  <p class="text-[13px] font-semibold text-brand-dark dark:text-brand-secondary leading-5">${comp.name}</p>
+                  <span class="bg-brand-primary text-white text-xs font-bold leading-4 px-3 h-[21px] rounded flex items-center justify-center">${comp.percentage}%</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <div class="grid grid-cols-4 gap-[33px] absolute left-[9px] top-[470px] w-full">
+            <div class="text-[11px] text-brand-secondary dark:text-brand-secondary leading-4">
+              <span class="font-bold dark:text-brand-primary text-xs">FICHA PERSONAL</span><br/>
+              <span class="font-medium text-brand-text dark:text-dark-text">Carrera:</span> <span class="font-light text-brand-text dark:text-dark-subtext">${persona.fichaPersonal.carrera}</span><br/>
+              <span class="font-medium text-brand-text dark:text-dark-text">Curso:</span> <span class="font-light text-brand-text dark:text-dark-subtext">${persona.fichaPersonal.curso}</span><br/>
+              <span class="font-medium text-brand-text dark:text-dark-text">Diplomado:</span> <span class="font-light text-brand-text dark:text-dark-subtext">${persona.fichaPersonal.diplomado}</span>
+            </div>
+            <div class="text-[11px] text-brand-secondary dark:text-brand-secondary leading-4">
+              <span class="font-bold dark:text-brand-primary text-xs">INTERESES</span><br/>
+              <span class="font-medium text-brand-text dark:text-dark-text">Pasión:</span> <span class="font-light text-brand-text dark:text-dark-subtext">${persona.intereses.pasion}</span><br/>
+              <span class="font-medium text-brand-text dark:text-dark-text">Hobby:</span> <span class="font-light text-brand-text dark:text-dark-subtext">${persona.intereses.hobby}</span>
+            </div>
+            <div class="text-[11px] text-brand-secondary dark:text-brand-secondary leading-4">
+              <span class="font-bold dark:text-brand-primary text-xs">PRO</span><br/>
+              <span class="font-medium text-brand-text dark:text-dark-text">Motivación:</span> <span class="font-light text-brand-text dark:text-dark-subtext">${persona.pro.motivacion}</span><br/>
+              <span class="font-medium text-brand-text dark:text-dark-text">Oportunidad:</span> <span class="font-light text-brand-text dark:text-dark-subtext">${persona.pro.oportunidad}</span><br/>
+              <span class="font-medium text-brand-text dark:text-dark-text">Deseo:</span> <span class="font-light text-brand-text dark:text-dark-subtext">${persona.pro.deseo}</span>
+            </div>
+            <div class="text-[11px] text-brand-secondary dark:text-brand-secondary leading-4">
+              <span class="font-bold dark:text-brand-primary text-xs">CONTRA</span><br/>
+              <span class="font-medium text-brand-text dark:text-dark-text">Frustración:</span> <span class="font-light text-brand-text dark:text-dark-subtext">${persona.contra.frustracion}</span><br/>
+              <span class="font-medium text-brand-text dark:text-dark-text">Miedo:</span> <span class="font-light text-brand-text dark:text-dark-subtext">${persona.contra.miedo}</span>
+            </div>
+          </div>
+        </div>
+        <div class="lg:hidden flex flex-col gap-4">
+          <div class="bg-white dark:bg-dark-card border border-[#f2f6ff] dark:border-dark-border rounded-2xl p-5 shadow-sm">
+            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+              <img src="${persona.image}" alt="Profile" class="w-48 h-48 md:w-52 md:h-52 object-cover rounded-full flex-shrink-0 sm:order-2 shadow-[0_0_20px_rgba(0,135,252,0.4)] dark:shadow-[0_0_40px_rgba(0,135,252,0.8)]" />
+              <div class="text-center sm:text-left flex-1 sm:order-1">
+                <div class="inline-block bg-brand-primary rounded-md px-2 py-1 mb-2"><span class="text-white text-[10px] font-bold leading-3">PERFIL</span></div>
+                <h2 class="text-3xl font-bold text-brand-dark dark:text-brand-secondary leading-tight">Jamileth<br/>Jackelinne</h2>
+                <h3 class="text-2xl font-bold text-brand-secondary dark:text-brand-primary leading-tight mt-1">Guerra Aguilar</h3>
+                <p class="text-sm font-semibold text-brand-dark dark:text-brand-secondary mt-2">${persona.role}</p>
+                <div class="grid grid-cols-2 gap-2 mt-4">
+                  ${[['CÉDULA', persona.cedula], ['EDAD', persona.age], ['ESTADO', persona.status], ['UBICACIÓN', persona.location]].map(([label,val]) => `
+                    <div class="bg-brand-bg dark:bg-dark-bg rounded-lg p-2 text-left">
+                      <p class="text-[10px] font-semibold text-brand-secondary dark:text-brand-primary">${label}</p>
+                      <p class="text-[10px] font-semibold text-brand-text dark:text-white">${val}</p>
+                    </div>`).join('')}
+                </div>
+                <div class="hidden md:block sm:hidden border-t border-[#f2f6ff] dark:border-dark-border mt-4 pt-3">
+                  <p class="text-[10px] font-semibold text-brand-secondary dark:text-brand-primary mb-1">CONTACTO</p>
+                  <div class="flex gap-4">
+                    <p class="text-sm font-semibold text-brand-dark dark:text-brand-secondary">${persona.phone1}</p>
+                    <p class="text-sm font-semibold text-brand-dark dark:text-brand-secondary">${persona.phone2}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white dark:bg-dark-card border border-[#f2f6ff] dark:border-dark-border rounded-2xl p-4 shadow-sm">
+              <h3 class="text-xs font-semibold text-brand-secondary dark:text-brand-primary leading-4 mb-4">PERFIL DISC</h3>
+              <div class="grid grid-cols-2 gap-x-4 gap-y-3">
+                ${discData.map(item => `
+                  <div>
+                    <p class="text-xs font-semibold text-brand-dark dark:text-brand-secondary leading-4 mb-1">${item.name}</p>
+                    <div class="w-full h-1 bg-brand-bg dark:bg-dark-bg rounded-full overflow-hidden">
+                      <div class="h-full bg-brand-secondary rounded-full animate-progress" style="width:${item.percentage}%"></div>
+                    </div>
+                    <p class="text-xs font-bold text-brand-secondary dark:text-brand-primary leading-4 mt-1">${item.percentage}%</p>
+                  </div>`).join('')}
+              </div>
+            </div>
+            <div class="bg-white dark:bg-dark-card border border-[#f2f6ff] dark:border-dark-border rounded-2xl p-4 shadow-sm">
+              <h3 class="text-sm font-semibold text-brand-secondary dark:text-brand-primary leading-4 mb-3">COMPETENCIAS</h3>
+              <div class="space-y-2">
+                ${competencies.map(comp => `
+                  <div class="flex items-center justify-between border-b border-[#f2f6ff] dark:border-dark-border pb-2">
+                    <p class="text-[13px] font-semibold text-brand-dark dark:text-brand-secondary leading-5">${comp.name}</p>
+                    <span class="bg-brand-primary text-white text-xs font-bold leading-4 px-3 h-[21px] rounded flex items-center justify-center">${comp.percentage}%</span>
+                  </div>`).join('')}
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white dark:bg-dark-card border border-[#f2f6ff] dark:border-dark-border rounded-2xl p-4 shadow-sm text-[11px] text-brand-secondary dark:text-brand-secondary leading-5">
+              <span class="font-bold dark:text-brand-primary text-xs">FICHA PERSONAL</span><br/>
+              <span class="font-medium text-brand-text dark:text-dark-text">Carrera:</span> <span class="font-light text-brand-text dark:text-dark-subtext">${persona.fichaPersonal.carrera}</span><br/>
+              <span class="font-medium text-brand-text dark:text-dark-text">Curso:</span> <span class="font-light text-brand-text dark:text-dark-subtext">${persona.fichaPersonal.curso}</span><br/>
+              <span class="font-medium text-brand-text dark:text-dark-text">Diplomado:</span> <span class="font-light text-brand-text dark:text-dark-subtext">${persona.fichaPersonal.diplomado}</span>
+            </div>
+            <div class="bg-white dark:bg-dark-card border border-[#f2f6ff] dark:border-dark-border rounded-2xl p-4 shadow-sm text-[11px] text-brand-secondary dark:text-brand-secondary leading-5">
+              <span class="font-bold dark:text-brand-primary text-xs">INTERESES</span><br/>
+              <span class="font-medium text-brand-text dark:text-dark-text">Pasión:</span> <span class="font-light text-brand-text dark:text-dark-subtext">${persona.intereses.pasion}</span><br/>
+              <span class="font-medium text-brand-text dark:text-dark-text">Hobby:</span> <span class="font-light text-brand-text dark:text-dark-subtext">${persona.intereses.hobby}</span>
+            </div>
+            <div class="bg-white dark:bg-dark-card border border-[#f2f6ff] dark:border-dark-border rounded-2xl p-4 shadow-sm text-[11px] text-brand-secondary dark:text-brand-secondary leading-5">
+              <span class="font-bold dark:text-brand-primary text-xs">PRO</span><br/>
+              <span class="font-medium text-brand-text dark:text-dark-text">Motivación:</span> <span class="font-light text-brand-text dark:text-dark-subtext">${persona.pro.motivacion}</span><br/>
+              <span class="font-medium text-brand-text dark:text-dark-text">Oportunidad:</span> <span class="font-light text-brand-text dark:text-dark-subtext">${persona.pro.oportunidad}</span><br/>
+              <span class="font-medium text-brand-text dark:text-dark-text">Deseo:</span> <span class="font-light text-brand-text dark:text-dark-subtext">${persona.pro.deseo}</span>
+            </div>
+            <div class="bg-white dark:bg-dark-card border border-[#f2f6ff] dark:border-dark-border rounded-2xl p-4 shadow-sm text-[11px] text-brand-secondary dark:text-brand-secondary leading-5">
+              <span class="font-bold dark:text-brand-primary text-xs">CONTRA</span><br/>
+              <span class="font-medium text-brand-text dark:text-dark-text">Frustración:</span> <span class="font-light text-brand-text dark:text-dark-subtext">${persona.contra.frustracion}</span><br/>
+              <span class="font-medium text-brand-text dark:text-dark-text">Miedo:</span> <span class="font-light text-brand-text dark:text-dark-subtext">${persona.contra.miedo}</span>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function buildProjectCard(project, idx) {
+      return `<div class="group cursor-pointer" data-id="${project.id}" style="animation-delay:${idx * 100}ms">
+        <div class="bg-slate-100 dark:bg-dark-card rounded-2xl overflow-hidden aspect-[4/3] mb-4 relative shadow-sm border border-transparent dark:border-dark-border">
+          <img src="${project.thumbnailUrl}" alt="${project.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+          <div class="absolute top-4 left-4">
+            <span class="bg-white/90 dark:bg-black/80 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-brand-dark dark:text-brand-primary border border-white/20">${project.category}</span>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-2xl font-bold text-brand-dark dark:text-white mb-2 group-hover:text-brand-primary transition-colors">${project.title}</h3>
+          <p class="text-slate-600 dark:text-dark-subtext text-sm leading-relaxed mb-3 line-clamp-2">${project.subtitle}</p>
+          <div class="flex gap-2 flex-wrap">
+            ${project.tags.map(tag => `<span class="bg-blue-50 dark:bg-white/5 text-brand-secondary dark:text-brand-secondary text-xs px-2 py-1 rounded font-medium">${tag}</span>`).join('')}
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function renderPortfolio() {
+      const container = document.getElementById('portfolioSection');
+      const ideaForge = projects.filter(p => p.isIdeaForge);
+      const filtered = projects.filter(p => !p.isIdeaForge);
+      container.innerHTML = `
+        <div class="text-center mb-12">
+          <div class="inline-block border border-[#b6d0ff] dark:border-brand-primary/50 rounded-full px-6 py-1 mb-6">
+            <span class="text-xs font-bold tracking-[0.2em] text-brand-dark dark:text-brand-primary uppercase">Jamileth J. Guerra</span>
+          </div>
+          <h1 class="text-4xl md:text-6xl font-bold text-brand-dark dark:text-white mb-6 leading-tight">Todas las ideas = <span class="text-brand-primary">Pensar, Crear & Transformar</span></h1>
+          <p class="text-slate-600 dark:text-dark-subtext max-w-2xl mx-auto text-lg">Explora las diferentes facetas de mi trabajo: Estrategia, Diseño, Websites o Activaciones.</p>
+        </div>
+        <div class="flex justify-center mb-12">
+          <div class="bg-white dark:bg-dark-card border border-[#b6d0ff] dark:border-dark-border rounded-full p-1.5 flex flex-wrap justify-center gap-1 shadow-sm" id="filterButtons"></div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20" id="projectGrid"></div>
+        <div class="border-t border-[#b6d0ff] dark:border-dark-border pt-16">
+          <h2 class="text-3xl font-bold text-brand-dark dark:text-white mb-8 text-center italic font-playfair">"Fraguas de ideas"</h2>
+          <p class="text-center text-slate-500 dark:text-dark-subtext mb-10 max-w-2xl mx-auto">El depósito de análisis, investigaciones e hipótesis que alimentan futuras estrategias.</p>
+          ${ideaForge.length === 0 ? `<div class="text-center py-12 bg-slate-50 dark:bg-dark-card/30 rounded-2xl border border-dashed border-slate-300 dark:border-dark-border"><p class="text-slate-400 dark:text-dark-subtext">No hay documentos en la fragua aún.</p></div>` : `<div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="ideaGrid"></div>`}
+        </div>`;
+
+      const categories = ['Todos','Estrategia','Diseño','Website','Varios'];
+      const filterButtons = document.getElementById('filterButtons');
+      categories.forEach((cat, idx) => {
+        const btn = document.createElement('button');
+        btn.textContent = cat === 'Todos' ? 'Todos los proyectos' : cat;
+        btn.className = 'filter-btn px-4 py-2 rounded-full text-sm font-semibold transition-all text-brand-dark dark:text-dark-subtext';
+        btn.dataset.category = cat;
+        filterButtons.appendChild(btn);
+        if (idx === 0) {
+          btn.classList.add('bg-brand-primary','text-white','shadow-md');
+        }
+      });
+
+      const grid = document.getElementById('projectGrid');
+      function paintGrid(active='Todos') {
+        grid.innerHTML = filtered.filter(p => active==='Todos' || p.category===active).map((p,i) => buildProjectCard(p,i)).join('');
+      }
+      paintGrid();
+      filterButtons.addEventListener('click', (e) => {
+        const btn = e.target.closest('.filter-btn');
+        if (!btn) return;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('bg-brand-primary','text-white','shadow-md'));
+        btn.classList.add('bg-brand-primary','text-white','shadow-md');
+        paintGrid(btn.dataset.category);
+      });
+
+      grid.addEventListener('click', (e) => {
+        const card = e.target.closest('[data-id]');
+        if (!card) return;
+        const project = projects.find(p => p.id === card.dataset.id);
+        openModal(project);
+      });
+
+      if (ideaForge.length) {
+        const ideaGrid = document.getElementById('ideaGrid');
+        ideaGrid.innerHTML = ideaForge.map(idea => `
+          <div data-id="${idea.id}" class="bg-white dark:bg-dark-card p-6 rounded-xl border border-slate-100 dark:border-dark-border shadow-sm hover:border-brand-primary cursor-pointer transition-all">
+            <div class="mb-4 text-brand-primary"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div>
+            <h4 class="font-bold text-brand-dark dark:text-white mb-2">${idea.title}</h4>
+            <p class="text-xs text-slate-500 dark:text-dark-subtext line-clamp-3">${idea.subtitle}</p>
+          </div>`).join('');
+        ideaGrid.addEventListener('click', (e) => {
+          const card = e.target.closest('[data-id]');
+          if (!card) return;
+          const project = projects.find(p => p.id === card.dataset.id);
+          openModal(project);
+        });
+      }
+    }
+
+    function openModal(project) {
+      const modal = document.getElementById('projectModal');
+      const content = document.getElementById('modalContent');
+      if (!project) return;
+      content.innerHTML = `
+        <div class="h-64 md:h-80 w-full relative">
+          <img src="${project.thumbnailUrl}" alt="${project.title}" class="w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-gradient-to-t from-white dark:from-black to-transparent"></div>
+          <div class="absolute bottom-6 left-6 md:left-10">
+            <span class="bg-brand-primary text-white text-xs font-bold px-3 py-1 rounded mb-3 inline-block">${project.category}</span>
+            <h2 class="text-3xl md:text-5xl font-bold text-brand-dark dark:text-white leading-tight">${project.title}</h2>
+          </div>
+        </div>
+        <div class="p-6 md:p-10 space-y-12">
+          <div>
+            <h3 class="text-sm font-bold text-brand-secondary dark:text-brand-secondary uppercase tracking-widest mb-4">Resumen</h3>
+            <p class="text-lg md:text-xl text-slate-700 dark:text-slate-200 leading-relaxed font-playfair italic">${project.subtitle}</p>
+          </div>
+          ${project.sections.map(section => renderSection(section)).join('') || '<p class="text-slate-500 dark:text-dark-subtext">Sin secciones adicionales.</p>'}
+        </div>`;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function renderSection(section) {
+      if (section.type === 'TEXT') {
+        return `<div class="border-t border-slate-100 dark:border-white/10 pt-8"><h3 class="text-xl font-bold text-brand-dark dark:text-brand-primary mb-6">${section.title}</h3><div class="prose dark:prose-invert max-w-none text-slate-600 dark:text-slate-300"><p>${section.content}</p></div></div>`;
+      }
+      if (section.type === 'BRIEF') {
+        const entries = Object.entries(section.content).map(([k,v]) => `<div class="bg-slate-50 dark:bg-white/5 p-4 rounded-xl"><h4 class="text-xs font-bold text-brand-secondary dark:text-brand-secondary uppercase mb-2">${k}</h4><p class="text-sm text-slate-700 dark:text-slate-300">${v}</p></div>`).join('');
+        return `<div class="border-t border-slate-100 dark:border-white/10 pt-8"><h3 class="text-xl font-bold text-brand-dark dark:text-brand-primary mb-6">${section.title}</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-6">${entries}</div></div>`;
+      }
+      if (section.type === 'FLOWCHART') {
+        const entries = Object.entries(section.content).map(([k,v]) => `<div class="bg-white dark:bg-black/40 border border-brand-primary/20 dark:border-brand-primary/30 rounded-2xl p-4"><p class="text-xs font-bold text-brand-secondary dark:text-brand-primary uppercase mb-2">${k}</p><p class="text-sm text-brand-dark dark:text-dark-subtext">${v}</p></div>`).join('');
+        return `<div class="border-t border-slate-100 dark:border-white/10 pt-8"><h3 class="text-xl font-bold text-brand-dark dark:text-brand-primary mb-6">${section.title}</h3><div class="grid gap-4">${entries}</div></div>`;
+      }
+      if (section.type === 'IMAGE') {
+        return `<div class="border-t border-slate-100 dark:border-white/10 pt-8"><h3 class="text-xl font-bold text-brand-dark dark:text-brand-primary mb-6">${section.title}</h3><img src="${section.content}" alt="${section.title}" class="rounded-2xl" /></div>`;
+      }
+      return '';
+    }
+
+    const modalEl = document.getElementById('projectModal');
+    document.getElementById('closeModal').addEventListener('click', () => {
+      modalEl.classList.add('hidden');
+    });
+    modalEl.addEventListener('click', (e) => {
+      if (e.target === modalEl) modalEl.classList.add('hidden');
+    });
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modalEl.classList.contains('hidden')) {
+        modalEl.classList.add('hidden');
+      }
+    });
+
+    function renderCPanel() {
+      const section = document.getElementById('cpanelSection');
+      section.innerHTML = `
+        <div class="bg-white dark:bg-dark-card border border-[#b6d0ff] dark:border-dark-border shadow-neon p-8 rounded-2xl w-full max-w-md mx-auto text-center" id="lockCard">
+          <div class="mb-6 text-4xl">🔒</div>
+          <h2 class="text-2xl font-bold text-brand-dark dark:text-dark-highlight mb-2">Acceso Restringido</h2>
+          <p class="text-slate-500 dark:text-dark-subtext mb-6">Introduce la contraseña maestra para acceder al Panel de Control.</p>
+          <div class="space-y-4">
+            <input id="passwordInput" type="password" class="w-full p-3 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border rounded-xl text-center text-lg tracking-widest focus:outline-none focus:ring-2 focus:ring-brand-primary dark:text-white" placeholder="•••••••" />
+            <p id="authError" class="text-red-500 text-sm hidden">Contraseña incorrecta</p>
+            <button id="unlockBtn" class="w-full py-3 bg-brand-primary text-white rounded-xl font-bold hover:bg-brand-dark transition-all shadow-md">Desbloquear</button>
+          </div>
+        </div>
+        <div id="formCard" class="hidden bg-white dark:bg-dark-card border border-[#b6d0ff] dark:border-dark-border rounded-2xl p-6 md:p-8 shadow-neon backdrop-blur-md">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-brand-dark dark:text-dark-highlight flex items-center gap-3"><span class="bg-slate-100 dark:bg-white/10 p-2 rounded-lg">🎛️</span>Nuevo Proyecto</h2>
+            <button id="lockBtn" class="text-xs text-red-500 hover:underline">Cerrar Sesión</button>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="space-y-1">
+              <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Título</label>
+              <input id="titleInput" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white focus:ring-2 focus:ring-brand-primary outline-none" />
+            </div>
+            <div class="space-y-1">
+              <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Categoría</label>
+              <select id="categoryInput" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white outline-none">
+                <option value="Estrategia">Estrategia</option>
+                <option value="Diseño">Diseño</option>
+                <option value="Website">Website</option>
+                <option value="Varios">Varios</option>
+              </select>
+            </div>
+            <div class="space-y-1 md:col-span-2">
+              <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Subtítulo</label>
+              <textarea id="subtitleInput" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white focus:ring-2 focus:ring-brand-primary outline-none" rows="2"></textarea>
+            </div>
+            <div class="space-y-1">
+              <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Estado</label>
+              <select id="statusInput" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white outline-none">
+                <option value="Real">Real</option>
+                <option value="Ficticio">Ficticio</option>
+                <option value="Estudio de Caso">Estudio de Caso</option>
+              </select>
+            </div>
+            <div class="space-y-1">
+              <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Fecha</label>
+              <input id="dateInput" type="date" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white focus:ring-2 focus:ring-brand-primary outline-none" />
+            </div>
+            <div class="space-y-1 md:col-span-2">
+              <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">URL de miniatura</label>
+              <input id="thumbInput" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white focus:ring-2 focus:ring-brand-primary outline-none" placeholder="https://" />
+            </div>
+            <div class="space-y-1 md:col-span-2">
+              <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Notas</label>
+              <textarea id="notesInput" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white focus:ring-2 focus:ring-brand-primary outline-none" rows="3" placeholder="Describe el objetivo o resultados"></textarea>
+            </div>
+            <div class="flex items-center gap-2 md:col-span-2">
+              <input id="ideaInput" type="checkbox" class="h-4 w-4 text-brand-primary border-slate-300 rounded" />
+              <label class="text-sm text-slate-600 dark:text-dark-subtext">Guardar en "Fraguas de ideas"</label>
+            </div>
+          </div>
+          <button id="publishBtn" class="w-full py-3 bg-brand-primary text-white rounded-xl font-bold hover:bg-brand-dark transition-all shadow-md">Publicar proyecto</button>
+        </div>`;
+
+      const PASSWORD = 'J162004';
+      document.getElementById('unlockBtn').addEventListener('click', () => {
+        const pwd = document.getElementById('passwordInput').value;
+        if (pwd === PASSWORD) {
+          document.getElementById('authError').classList.add('hidden');
+          document.getElementById('lockCard').classList.add('hidden');
+          document.getElementById('formCard').classList.remove('hidden');
+        } else {
+          document.getElementById('authError').classList.remove('hidden');
+        }
+      });
+      document.getElementById('lockBtn').addEventListener('click', () => {
+        document.getElementById('formCard').classList.add('hidden');
+        document.getElementById('lockCard').classList.remove('hidden');
+      });
+      document.getElementById('publishBtn').addEventListener('click', () => {
+        const title = document.getElementById('titleInput').value.trim();
+        const subtitle = document.getElementById('subtitleInput').value.trim();
+        if (!title || !subtitle) { alert('Añade al menos título y subtítulo.'); return; }
+        const category = document.getElementById('categoryInput').value;
+        const status = document.getElementById('statusInput').value;
+        const date = document.getElementById('dateInput').value;
+        const thumb = document.getElementById('thumbInput').value || 'https://via.placeholder.com/600x400';
+        const notes = document.getElementById('notesInput').value;
+        const idea = document.getElementById('ideaInput').checked;
+        const displayDate = date ? new Date(date).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' }) : 'sin fecha';
+        const newProject = {
+          id: Date.now().toString(),
+          title,
+          subtitle,
+          category,
+          tags: [displayDate, status],
+          thumbnailUrl: thumb,
+          date: displayDate,
+          sections: notes ? [{ id: 'note', title: 'Notas', type: 'TEXT', content: notes }] : [],
+          isIdeaForge: idea
+        };
+        projects = [newProject, ...projects];
+        renderPortfolio();
+        currentView = idea ? 'PORTFOLIO' : 'PORTFOLIO';
+        updateNav();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        alert('Proyecto agregado al portafolio.');
+      });
+    }
+
+    renderProfile();
+    renderPortfolio();
+    renderCPanel();
+    updateNav();
+  </script>
 </body>
 </html>
