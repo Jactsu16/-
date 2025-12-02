@@ -1497,12 +1497,20 @@
       });
     }
 
-    renderProfile();
-    renderPortfolio();
-    renderChatbot();
-    renderCV();
-    renderCPanel();
-    updateNav();
+    function initStaticPage() {
+      renderProfile();
+      renderPortfolio();
+      renderChatbot();
+      renderCV();
+      renderCPanel();
+      updateNav();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initStaticPage);
+    } else {
+      initStaticPage();
+    }
   </script>
 </body>
 </html>
