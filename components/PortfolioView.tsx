@@ -36,33 +36,33 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ projects }) => {
         </p>
       </div>
 
-      {/* CV Banner */}
-      <div className="animate-slide-up mb-10">
-        <a
-          href="/cv.html"
-          className="block bg-white dark:bg-dark-card border-2 border-[#0087fc] rounded-2xl p-5 md:p-7 shadow-md transition-all duration-300 hover:border-red-500"
-        >
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
-            <div className="space-y-2">
-              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#005e91] dark:text-brand-primary">CV</p>
-              <h2 className="text-2xl md:text-3xl font-bold text-[#005e91] dark:text-white">
-                Jamileth J Guerra – Click aquí
-              </h2>
-              <p className="text-slate-600 dark:text-dark-subtext text-sm md:text-base">
-                Revisa mi CV en un formato interactivo y conoce más sobre mi trayectoria profesional.
-              </p>
+        {/* CV Banner */}
+        <div className="animate-slide-up mb-10">
+          <a
+            href="/cv.html"
+            className="block bg-white dark:bg-dark-card border-2 border-[#0087fc] rounded-2xl p-5 md:p-7 shadow-md transition-colors duration-300 hover:border-red-500"
+          >
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+              <div className="space-y-2">
+                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#005e91] dark:text-brand-primary">CV</p>
+                <h2 className="text-2xl md:text-3xl font-bold text-[#005e91] dark:text-white uppercase">
+                  CV - Jamileth J Guerra - Click Aquí
+                </h2>
+                <p className="text-slate-600 dark:text-dark-subtext text-sm md:text-base">
+                  Revisa mi CV en un formato interactivo y conoce más sobre mi trayectoria profesional.
+                </p>
+              </div>
+              <div className="min-w-[160px] flex justify-center">
+                <span className="inline-flex items-center gap-3 px-4 py-3 rounded-full border border-current text-[#0087fc] dark:text-brand-primary font-semibold transition-colors duration-300">
+                  Abrir CV
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </div>
             </div>
-            <div className="min-w-[160px] flex justify-center">
-              <span className="inline-flex items-center gap-3 px-4 py-3 rounded-full border border-current text-[#0087fc] dark:text-brand-primary font-semibold transition-colors duration-300 hover:text-red-500">
-                Abrir CV
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </span>
-            </div>
-          </div>
-        </a>
-      </div>
+          </a>
+        </div>
 
       {/* Filter */}
       <div className="flex justify-center mb-12 animate-slide-up">
