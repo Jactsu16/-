@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+https://i.postimg.cc/HkMs2gtm/Gemini-Generated-Image-30e83v30e83v30e8.png<!DOCTYPE html>
 <html lang="es" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
@@ -28,7 +28,7 @@
       "image": "https://c.animaapp.com/AONx6myv/img/mask-group@2x.png"
     }
   </script>
-  <title>PAD - Jamileth Jackelinne Guerra Aguilar</title>
+  <title>Buyer Persona - Jamileth Jackelinne Guerra Aguilar</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
@@ -90,11 +90,11 @@
 
   <header class="fixed top-6 left-0 right-0 z-50 px-4">
     <nav class="glass-effect border border-[#b6d0ff] dark:border-dark-border rounded-full shadow px-4 md:px-6 py-3 max-w-[965px] h-[54px] mx-auto flex items-center justify-between transition-all duration-300">
-      <h1 id="pageTitle" class="text-base md:text-xl font-bold text-brand-dark dark:text-brand-primary tracking-[-0.5px] leading-5 cursor-pointer">PAD · Inicio</h1>
+      <h1 id="pageTitle" class="text-base md:text-xl font-bold text-brand-dark dark:text-brand-primary tracking-[-0.5px] leading-5 cursor-pointer">Buyer Persona</h1>
       <div class="flex items-center gap-2">
         <button data-view="HOME" class="nav-btn px-3 md:px-4 h-8 md:h-9 rounded-full font-semibold text-xs md:text-sm leading-5 transition-all duration-300">Inicio</button>
         <button data-view="PORTFOLIO" class="nav-btn px-3 md:px-4 h-8 md:h-9 rounded-full font-semibold text-xs md:text-sm leading-5 transition-all duration-300">Portafolio</button>
-        <button data-view="CHATBOT" class="nav-btn px-3 md:px-4 h-8 md:h-9 rounded-full font-semibold text-xs md:text-sm leading-5 transition-all duration-300">ChatBot</button>
+        <button data-view="CHATBOT" class="nav-btn px-3 h-8 md:h-9 rounded-full font-semibold text-xs md:text-sm leading-5 transition-colors text-brand-accent">ChatBot</button>
         <button data-view="CPANEL" class="nav-btn hidden sm:inline px-2 text-[10px] font-mono opacity-70 hover:opacity-100" title="Panel de Control">CP</button>
         <button id="darkToggle" class="ml-1 p-1.5 rounded-full text-brand-dark dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors" title="Modo oscuro">
           <svg id="sunIcon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
@@ -107,8 +107,13 @@
   <main class="pt-24 md:pt-[110px]">
     <section id="homeSection" class="min-h-screen px-4 md:px-6 max-w-[1080px] mx-auto pb-16"></section>
     <section id="portfolioSection" class="hidden min-h-screen px-4 md:px-6 max-w-[1200px] mx-auto pb-16"></section>
-    <section id="chatbotSection" class="hidden min-h-screen px-4 md:px-6 max-w-[1000px] mx-auto pb-16"></section>
-    <section id="cvSection" class="hidden min-h-screen px-4 md:px-6 max-w-[1100px] mx-auto pb-16"></section>
+    <section id="chatSection" class="hidden min-h-screen px-4 md:px-6 max-w-[1000px] mx-auto pb-16 flex items-center justify-center text-center">
+      <div class="bg-white dark:bg-dark-card border border-[#b6d0ff] dark:border-dark-border rounded-2xl p-8 shadow-neon max-w-xl">
+        <div class="text-5xl mb-4">🤖</div>
+        <h2 class="text-2xl font-bold text-brand-dark dark:text-dark-highlight mb-2">Chatbot disponible por separado</h2>
+        <p class="text-slate-600 dark:text-dark-subtext">Este proyecto está pensado como página estática. El chatbot se mantiene como servicio independiente.</p>
+      </div>
+    </section>
     <section id="cpanelSection" class="hidden min-h-screen px-4 md:px-6 max-w-[900px] mx-auto pb-16"></section>
   </main>
 
@@ -456,25 +461,21 @@
     const sections = {
       HOME: document.getElementById('homeSection'),
       PORTFOLIO: document.getElementById('portfolioSection'),
-      CHATBOT: document.getElementById('chatbotSection'),
-      CV: document.getElementById('cvSection'),
+      CHATBOT: document.getElementById('chatSection'),
       CPANEL: document.getElementById('cpanelSection')
-    };
-    const viewTitles = {
-      HOME: 'Inicio',
-      PORTFOLIO: 'Portafolio',
-      CHATBOT: 'ChatBot',
-      CV: 'CV interactivo',
-      CPANEL: 'CPanel'
     };
 
     function updateNav() {
-      document.getElementById('pageTitle').textContent = `PAD · ${viewTitles[currentView] || 'Inicio'}`;
+      document.getElementById('pageTitle').textContent = currentView === 'HOME' ? 'Buyer Persona' : currentView === 'PORTFOLIO' ? 'Portafolio' : currentView === 'CHATBOT' ? 'ChatBot - Jactsu' : 'Panel de Control';
       navButtons.forEach(btn => {
         const target = btn.dataset.view;
         btn.classList.remove('bg-brand-primary','text-white','shadow-md','underline','opacity-100');
         if (target === currentView) {
-          btn.classList.add('bg-brand-primary','text-white','shadow-md');
+          if (target === 'CHATBOT') {
+            btn.classList.add('underline','opacity-100');
+          } else {
+            btn.classList.add('bg-brand-primary','text-white','shadow-md');
+          }
         } else {
           btn.classList.add('text-brand-dark','dark:text-dark-text');
         }
@@ -704,13 +705,6 @@
           <h1 class="text-4xl md:text-6xl font-bold text-brand-dark dark:text-white mb-6 leading-tight">Todas las ideas = <span class="text-brand-primary">Pensar, Crear & Transformar</span></h1>
           <p class="text-slate-600 dark:text-dark-subtext max-w-2xl mx-auto text-lg">Explora las diferentes facetas de mi trabajo: Estrategia, Diseño, Websites o Activaciones.</p>
         </div>
-        <div class="mb-10 rounded-full px-5 md:px-8 py-4 bg-gradient-to-r from-brand-primary/15 via-white to-brand-primary/10 dark:from-dark-card dark:via-black dark:to-dark-card border border-[#b6d0ff]/60 dark:border-dark-border shadow-sm flex items-center justify-between gap-4">
-          <div class="flex-1">
-            <p class="text-[11px] uppercase tracking-[0.25em] text-brand-primary font-bold mb-1">CV interactivo</p>
-            <p class="text-base md:text-lg text-brand-dark dark:text-white font-semibold">Descubre mi trayectoria en un formato ágil y visual.</p>
-          </div>
-          <button id="cvBannerBtn" class="px-4 py-2 rounded-full bg-brand-primary text-white font-semibold shadow">Ver CV</button>
-        </div>
         <div class="flex justify-center mb-12">
           <div class="bg-white dark:bg-dark-card border border-[#b6d0ff] dark:border-dark-border rounded-full p-1.5 flex flex-wrap justify-center gap-1 shadow-sm" id="filterButtons"></div>
         </div>
@@ -733,9 +727,6 @@
           btn.classList.add('bg-brand-primary','text-white','shadow-md');
         }
       });
-
-      const cvBtn = document.getElementById('cvBannerBtn');
-      if (cvBtn) cvBtn.addEventListener('click', () => { currentView = 'CV'; updateNav(); renderCV(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
 
       const grid = document.getElementById('projectGrid');
       function paintGrid(active='Todos') {
@@ -1015,30 +1006,18 @@
       function renderAssets() {
         const list = document.getElementById('assetList');
         if (!assetDrafts.length) { list.innerHTML = '<p class="text-xs text-slate-500 dark:text-dark-subtext">Sin archivos cargados.</p>'; return; }
-        const thumbValue = document.getElementById('thumbInput').value;
-        list.innerHTML = assetDrafts.map(asset => {
-          const preview = asset.preview || '';
-          const isThumb = thumbValue && (thumbValue === preview || thumbValue === asset.path);
-          const downloadHref = preview || asset.path;
-          const exportButton = downloadHref
-            ? `<a class="text-xs text-brand-secondary export-asset" href="${downloadHref}" download="${asset.name}">Exportar</a>`
-            : '<span class="text-xs text-slate-400">Exportar</span>';
-          return `
-            <div class="border border-slate-200 dark:border-dark-border rounded-lg p-3 flex items-center gap-3" data-asset-id="${asset.id}">
-              <div class="w-12 h-12 bg-slate-100 dark:bg-white/10 rounded overflow-hidden flex items-center justify-center">
-                ${preview ? `<img src="${preview}" alt="${asset.name}" class="w-full h-full object-cover" />` : '<span class="text-[10px] text-slate-500 dark:text-dark-subtext">${asset.mediaType === 'pdf' ? 'PDF' : 'Media'}</span>'}
-              </div>
-              <div class="flex-1">
-                <p class="text-sm font-semibold text-brand-dark dark:text-white line-clamp-1">${asset.name} ${isThumb ? '• Miniatura' : ''}</p>
-                <p class="text-[11px] text-slate-500 dark:text-dark-subtext">${asset.path}</p>
-              </div>
-              <div class="flex flex-col gap-1 text-right">
-                <button class="text-xs text-brand-primary set-thumb">Usar miniatura</button>
-                ${exportButton}
-                <button class="text-xs text-red-500 remove-asset">Quitar</button>
-              </div>
-            </div>`;
-        }).join('');
+        list.innerHTML = assetDrafts.map(asset => `
+          <div class="border border-slate-200 dark:border-dark-border rounded-lg p-3 flex items-center gap-3" data-asset-id="${asset.id}">
+            <div class="w-12 h-12 bg-slate-100 dark:bg-white/10 rounded overflow-hidden flex items-center justify-center">
+              ${asset.preview ? `<img src="${asset.preview}" alt="${asset.name}" class="w-full h-full object-cover" />` : '<span class="text-xs">PDF/Video</span>'}
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-brand-dark dark:text-white line-clamp-1">${asset.name}</p>
+              <p class="text-[11px] text-slate-500 dark:text-dark-subtext">${asset.path}</p>
+            </div>
+            <button class="text-xs text-red-500 remove-asset">Quitar</button>
+          </div>
+        `).join('');
       }
 
       function renderSections() {
@@ -1344,22 +1323,18 @@
           const id = `${Date.now()}-${file.name}`;
           const path = `${uploadDir}/${file.name}`;
           const asset = { id, name: file.name, path, mediaType: file.type, size: file.size };
-          if (file.type.includes('image')) { asset.mediaType = 'image'; }
+          if (file.type.includes('image')) {
+            const reader = new FileReader();
+            reader.onload = () => {
+              asset.preview = reader.result;
+              renderAssets();
+            };
+            reader.readAsDataURL(file);
+          }
           if (file.type.includes('video')) { asset.mediaType = 'video'; }
           if (file.type.includes('pdf')) { asset.mediaType = 'pdf'; }
-          const reader = new FileReader();
-          reader.onload = () => {
-            asset.preview = reader.result;
-            renderAssets();
-          };
-          reader.readAsDataURL(file);
           assetDrafts.push(asset);
         });
-        const thumbInput = document.getElementById('thumbInput');
-        if (!thumbInput.value) {
-          const firstImage = assetDrafts.find(a => a.mediaType === 'image');
-          if (firstImage) thumbInput.value = firstImage.preview || firstImage.path;
-        }
         renderAssets();
       });
 
@@ -1368,14 +1343,6 @@
           const card = e.target.closest('[data-asset-id]');
           assetDrafts = assetDrafts.filter(a => a.id !== card.dataset.assetId);
           renderAssets();
-        }
-        if (e.target.classList.contains('set-thumb')) {
-          const card = e.target.closest('[data-asset-id]');
-          const asset = assetDrafts.find(a => a.id === card.dataset.assetId);
-          if (asset) {
-            document.getElementById('thumbInput').value = asset.preview || asset.path;
-            renderAssets();
-          }
         }
       });
 
@@ -1474,43 +1441,10 @@
       renderProjectList();
     }
 
-    function renderChatbot() {
-      const container = document.getElementById('chatbotSection');
-      if (!container) return;
-      container.innerHTML = `
-        <div class="bg-white dark:bg-dark-card border border-[#b6d0ff] dark:border-dark-border rounded-3xl shadow-lg p-8 md:p-12">
-          <p class="text-[11px] uppercase tracking-[0.25em] text-brand-primary font-bold mb-2">ChatBot</p>
-          <h2 class="text-3xl md:text-4xl font-bold text-brand-dark dark:text-white mb-4">Asistente en preparación</h2>
-          <p class="text-slate-600 dark:text-dark-subtext max-w-2xl mb-6">Pronto volverá el chatbot híbrido con las preguntas más frecuentes y recomendaciones personalizadas. Mientras tanto, puedes explorar mi portafolio o contactar directo desde el panel.</p>
-          <div class="flex flex-wrap gap-3">
-            <button class="px-4 py-2 rounded-full bg-brand-primary text-white font-semibold shadow" data-view="PORTFOLIO">Ver portafolio</button>
-            <button class="px-4 py-2 rounded-full bg-slate-100 dark:bg-white/10 text-brand-dark dark:text-white font-semibold shadow" data-view="HOME">Volver al inicio</button>
-          </div>
-        </div>`;
-
-      container.querySelectorAll('button[data-view]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          currentView = btn.dataset.view;
-          updateNav();
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-      });
-    }
-
-    function initStaticPage() {
-      renderProfile();
-      renderPortfolio();
-      renderChatbot();
-      renderCV();
-      renderCPanel();
-      updateNav();
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initStaticPage);
-    } else {
-      initStaticPage();
-    }
+    renderProfile();
+    renderPortfolio();
+    renderCPanel();
+    updateNav();
   </script>
 </body>
 </html>
