@@ -37,19 +37,21 @@ const INITIAL_FLOWCHART: FlowchartData = {
 };
 
 const PASSWORD = 'J162004';
+const getTodayISO = () => new Date().toISOString().split('T')[0];
 
 const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
   // Auth State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [authError, setAuthError] = useState('');
+  const [formError, setFormError] = useState('');
 
   // Project Info
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
   const [category, setCategory] = useState<ProjectCategory>('Estrategia');
   const [status, setStatus] = useState<ProjectStatus>('Real');
-  const [date, setDate] = useState('');
+  const [date, setDate] = useState(() => getTodayISO());
   const [thumbnailUrl, setThumbnailUrl] = useState(''); // Stores Base64 string
   const [isIdeaForge, setIsIdeaForge] = useState(false);
   
@@ -68,6 +70,7 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
     if (passwordInput === PASSWORD) {
       setIsAuthenticated(true);
       setAuthError('');
+      setPasswordInput('');
     } else {
       setAuthError('Contraseña incorrecta');
     }
@@ -112,9 +115,15 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
   };
 
   const handlePublish = () => {
+    if (!title.trim() || !subtitle.trim() || sections.length === 0) {
+      setFormError('Completa título, subtítulo y al menos una sección antes de publicar.');
+      return;
+    }
+
     // Format Date for display (e.g., "may 2025")
-    const dateObj = new Date(date);
-    const displayDate = dateObj.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
+    const dateObj = date ? new Date(date) : new Date();
+    const safeDate = isNaN(dateObj.getTime()) ? new Date() : dateObj;
+    const displayDate = safeDate.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
 
     const newProject: Project = {
       id: Date.now().toString(),
@@ -130,6 +139,21 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
       isIdeaForge
     };
     onAddProject(newProject);
+    setFormError('');
+
+    setTitle('');
+    setSubtitle('');
+    setCategory('Estrategia');
+    setStatus('Real');
+    setDate(getTodayISO());
+    setThumbnailUrl('');
+    setIsIdeaForge(false);
+    setSections([]);
+    setCurrentSectionTitle('');
+    setCurrentSectionType('TEXT');
+    setTextContent('');
+    setBriefContent(INITIAL_BRIEF);
+    setFlowchartContent(INITIAL_FLOWCHART);
   };
 
   if (!isAuthenticated) {
@@ -389,7 +413,12 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
 
         {/* Publish Action */}
         <div className="mt-8 pt-6 border-t border-slate-200 dark:border-white/20">
-           <button 
+           {formError && (
+             <p className="mb-4 text-sm text-red-500 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+               {formError}
+             </p>
+           )}
+           <button
              onClick={handlePublish}
              disabled={!title || sections.length === 0 || !date}
              className="w-full py-4 bg-[#0087fc] text-white rounded-xl font-bold text-lg hover:bg-[#005e91] transition-all shadow-lg hover:shadow-xl hover:shadow-[#0087fc]/20 disabled:opacity-50 disabled:cursor-not-allowed"
