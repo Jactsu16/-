@@ -186,6 +186,134 @@
       { key: 'medidas', label: 'KPIs / Medidas' }
     ];
 
+    const MEDIA_PLAN_CONFIG = {
+      IMPRESO: {
+        label: 'Impreso',
+        commission: 0.15,
+        fields: [
+          { key: 'medio', label: 'Medio impreso' },
+          { key: 'dia', label: 'Día de pauta' },
+          { key: 'formato', label: 'Formato' },
+          { key: 'tamano', label: 'Tamaño' },
+          { key: 'veces', label: 'Número de veces', type: 'number' },
+          { key: 'tamanoPulgadas', label: 'Pulgadas columnares', type: 'number' },
+          { key: 'precioPulgadas', label: 'Precio por pulg. col.', type: 'number' }
+        ],
+        total: row => (Number(row.veces || 0) * Number(row.tamanoPulgadas || 0) * Number(row.precioPulgadas || 0))
+      },
+      TV: {
+        label: 'Televisión',
+        commission: 0.15,
+        fields: [
+          { key: 'programa', label: 'Programa' },
+          { key: 'dia', label: 'Día de pauta' },
+          { key: 'horario', label: 'Horario' },
+          { key: 'tiempo', label: 'Tiempo al aire' },
+          { key: 'repeticion', label: 'Repetición', type: 'number' },
+          { key: 'costo', label: 'Costo', type: 'number' },
+          { key: 'ratingPoint', label: 'Rating point', type: 'number', helper: 'Para calcular CPM y CPPR' }
+        ],
+        total: row => (Number(row.repeticion || 0) || 1) * Number(row.costo || 0)
+      },
+      RADIO: {
+        label: 'Radio',
+        commission: 0.18,
+        fields: [
+          { key: 'programa', label: 'Programa' },
+          { key: 'dia', label: 'Día de pauta' },
+          { key: 'horario', label: 'Horario' },
+          { key: 'tiempo', label: 'Tiempo' },
+          { key: 'repeticion', label: 'Repetición', type: 'number' },
+          { key: 'costo', label: 'Costo', type: 'number' }
+        ],
+        total: row => (Number(row.repeticion || 0) || 1) * Number(row.costo || 0)
+      },
+      VAYA: {
+        label: 'Valla',
+        commission: 0.15,
+        fields: [
+          { key: 'caracteristica', label: 'Característica' },
+          { key: 'tiempo', label: 'Tiempo' },
+          { key: 'numeroVallas', label: 'Número de vallas', type: 'number' },
+          { key: 'costo', label: 'Costo', type: 'number' }
+        ],
+        total: row => Number(row.numeroVallas || 0) * Number(row.costo || 0)
+      },
+      REDES: {
+        label: 'Redes',
+        commission: 0.25,
+        fields: [
+          { key: 'medio', label: 'Medio' },
+          { key: 'tiempo', label: 'Tiempo' },
+          { key: 'publicaciones', label: 'Número de publicaciones', type: 'number' },
+          { key: 'costo', label: 'Costo', type: 'number' }
+        ],
+        total: row => Number(row.publicaciones || 0) * Number(row.costo || 0)
+      },
+      FLYER: {
+        label: 'Flyer',
+        commission: 0.15,
+        fields: [
+          { key: 'formato', label: 'Formato' },
+          { key: 'tiempo', label: 'Tiempo' },
+          { key: 'cantidad', label: 'Cantidad', type: 'number' },
+          { key: 'costo', label: 'Costo', type: 'number' }
+        ],
+        total: row => Number(row.cantidad || 0) * Number(row.costo || 0)
+      }
+    };
+
+    function createEmptyPlanRow(medium = 'IMPRESO') {
+      const cfg = MEDIA_PLAN_CONFIG[medium] || MEDIA_PLAN_CONFIG.IMPRESO;
+      const row = { medium };
+      cfg.fields.forEach(f => { row[f.key] = ''; });
+      return row;
+    }
+
+    function computePlanRowTotal(row = {}) {
+      const medium = row.medium || 'IMPRESO';
+      const cfg = MEDIA_PLAN_CONFIG[medium] || MEDIA_PLAN_CONFIG.IMPRESO;
+      return cfg.total ? cfg.total(row) : 0;
+    }
+
+    function computePlanSummary(rows = []) {
+      const totals = {};
+      rows.forEach(row => {
+        const medium = row.medium || 'IMPRESO';
+        const value = computePlanRowTotal(row);
+        totals[medium] = (totals[medium] || 0) + value;
+      });
+      const summary = Object.entries(totals).map(([medium, total]) => {
+        const commissionRate = MEDIA_PLAN_CONFIG[medium]?.commission || 0;
+        const commission = total * commissionRate;
+        return { medium, total, commission };
+      });
+      const grandTotal = summary.reduce((acc, item) => acc + item.total, 0);
+      const commissionTotal = summary.reduce((acc, item) => acc + item.commission, 0);
+      return { summary, grandTotal, commissionTotal };
+    }
+
+    function formatCurrency(value = 0) {
+      return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(value || 0);
+    }
+
+    function serializePlanRow(row = {}) {
+      const medium = (row.medium || 'IMPRESO').toUpperCase();
+      const cfg = MEDIA_PLAN_CONFIG[medium] || MEDIA_PLAN_CONFIG.IMPRESO;
+      const payload = { medium };
+      cfg.fields.forEach(f => { payload[f.key] = row[f.key] || ''; });
+      const total = computePlanRowTotal(row);
+      payload.total = total;
+      if (row.ratingPoint !== undefined && row.ratingPoint !== '') {
+        const rating = Number(row.ratingPoint) || 0;
+        const cost = Number(row.costo || total || 0);
+        payload.ratingPoint = row.ratingPoint;
+        payload.cpm = rating ? cost / (rating * 1000) : 0;
+        payload.cppr = rating ? cost / rating : 0;
+      }
+      return payload;
+    }
+
     const seedProjects = [
       {
         id: '1',
@@ -284,7 +412,7 @@
         body: '',
         brief: BRIEF_FIELDS.reduce((acc, f) => ({ ...acc, [f.key]: '' }), {}),
         flow: FLOW_FIELDS.reduce((acc, f) => ({ ...acc, [f.key]: '' }), {}),
-        mediaPlan: [{ canal: '', formato: '', ventana: '' }],
+        mediaPlan: [createEmptyPlanRow()],
         evento: '',
         lugar: '',
         fecha: '',
@@ -694,13 +822,40 @@
         return `<div class="border-t border-slate-100 dark:border-white/10 pt-8 space-y-3"><h3 class="text-xl font-bold text-brand-dark dark:text-brand-primary">${section.title}</h3><img src="${url}" alt="${section.title}" class="rounded-2xl max-h-96 object-cover w-full" /></div>`;
       }
       if (section.type === 'MEDIA_PLAN') {
-        const rows = (section.content || []).map(row => `
-          <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-xl p-4 shadow-sm">
-            <p class="text-xs font-bold text-brand-secondary dark:text-brand-primary uppercase mb-1">${row.canal || 'Canal'}</p>
-            <p class="text-sm text-brand-dark dark:text-white">${row.formato || 'Formato / Pieza'}</p>
-            <p class="text-[11px] text-slate-500 dark:text-dark-subtext">${row.ventana || 'Ventana / Fecha'}</p>
-          </div>`).join('');
-        return `<div class="border-t border-slate-100 dark:border-white/10 pt-8 space-y-4"><h3 class="text-xl font-bold text-brand-dark dark:text-brand-primary">${section.title}</h3><div class="grid grid-cols-1 md:grid-cols-3 gap-3">${rows}</div></div>`;
+        const rows = Array.isArray(section.content) ? section.content : [];
+        const grouped = rows.reduce((acc, row) => {
+          const medium = (row.medium || 'IMPRESO').toUpperCase();
+          acc[medium] = acc[medium] || [];
+          acc[medium].push(row);
+          return acc;
+        }, {});
+        const blocks = Object.entries(grouped).map(([medium, items]) => {
+          const cfg = MEDIA_PLAN_CONFIG[medium] || MEDIA_PLAN_CONFIG.IMPRESO;
+          const headers = cfg.fields.map(f => `<th class="px-3 py-2 text-left text-[11px] uppercase text-slate-500 dark:text-dark-subtext">${f.label}</th>`).join('') + '<th class="px-3 py-2 text-left text-[11px] uppercase text-slate-500 dark:text-dark-subtext">Total</th>' + (medium === 'TV' ? '<th class="px-3 py-2 text-left text-[11px] uppercase text-slate-500 dark:text-dark-subtext">Rating</th><th class="px-3 py-2 text-left text-[11px] uppercase text-slate-500 dark:text-dark-subtext">CPM</th><th class="px-3 py-2 text-left text-[11px] uppercase text-slate-500 dark:text-dark-subtext">CPPR</th>' : '');
+          const body = items.map(item => {
+            const total = item.total ?? computePlanRowTotal(item);
+            const cells = cfg.fields.map(f => `<td class="px-3 py-2 text-sm text-slate-700 dark:text-slate-200">${item[f.key] || '—'}</td>`).join('');
+            const ratingCells = medium === 'TV' ? `<td class="px-3 py-2 text-sm text-slate-700 dark:text-slate-200">${item.ratingPoint || '—'}</td><td class="px-3 py-2 text-sm text-slate-700 dark:text-slate-200">${item.cpm ? formatCurrency(item.cpm) : '—'}</td><td class="px-3 py-2 text-sm text-slate-700 dark:text-slate-200">${item.cppr ? formatCurrency(item.cppr) : '—'}</td>` : '';
+            return `<tr class="border-t border-slate-100 dark:border-white/5">${cells}<td class="px-3 py-2 text-sm font-semibold text-brand-primary">${formatCurrency(total)}</td>${ratingCells}</tr>`;
+          }).join('');
+          const totalMedium = items.reduce((acc, it) => acc + (it.total ?? computePlanRowTotal(it)), 0);
+          const commissionRate = cfg.commission || 0;
+          const commission = totalMedium * commissionRate;
+          return `<div class="space-y-2">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+              <p class="text-lg font-semibold text-brand-dark dark:text-brand-primary">${cfg.label}</p>
+              <p class="text-sm text-slate-600 dark:text-dark-subtext">Total ${formatCurrency(totalMedium)} · Comisión ${Math.round(commissionRate*100)}%: ${formatCurrency(commission)}</p>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="min-w-full text-left border border-slate-100 dark:border-white/10 rounded-xl overflow-hidden">
+                <thead class="bg-slate-50 dark:bg-white/5">${headers}</thead>
+                <tbody class="bg-white dark:bg-dark-card">${body}</tbody>
+              </table>
+            </div>
+          </div>`;
+        }).join('');
+        const mediaSummary = computePlanSummary(rows);
+        return `<div class="border-t border-slate-100 dark:border-white/10 pt-8 space-y-4"><h3 class="text-xl font-bold text-brand-dark dark:text-brand-primary">${section.title}</h3><div class="space-y-6">${blocks}</div><div class="bg-slate-50 dark:bg-white/5 border border-dashed border-brand-primary/30 rounded-xl p-4 text-sm flex flex-col gap-1"><span class="font-semibold text-brand-primary">Total plan: ${formatCurrency(mediaSummary.grandTotal)}</span><span class="text-slate-600 dark:text-dark-subtext">Comisión total: ${formatCurrency(mediaSummary.commissionTotal)}</span></div></div>`;
       }
       if (section.type === 'ANEXO') {
         const info = section.content || {};
@@ -879,15 +1034,42 @@
               <textarea data-flow="${field.key}" class="section-flow w-full p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border text-sm" rows="2">${sec.flow?.[field.key] || ''}</textarea>
             </label>`).join('');
 
-          const planRows = (sec.mediaPlan || [{ canal: '', formato: '', ventana: '' }]).map((row, idx) => `
-            <div class="border border-slate-200 dark:border-dark-border rounded-lg p-3 space-y-2" data-plan-row="${idx}">
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
-                <input data-plan-field="canal" class="p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border" placeholder="Canal / Medio" value="${row.canal || ''}">
-                <input data-plan-field="formato" class="p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border" placeholder="Formato / Pieza" value="${row.formato || ''}">
-                <input data-plan-field="ventana" class="p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border" placeholder="Ventana / Fechas" value="${row.ventana || ''}">
+          const planRows = (sec.mediaPlan || [createEmptyPlanRow()]).map((row, idx) => {
+            const current = MEDIA_PLAN_CONFIG[row.medium] ? row.medium : 'IMPRESO';
+            const cfg = MEDIA_PLAN_CONFIG[current];
+            const fields = cfg.fields.map(field => `
+              <label class="text-[11px] font-semibold text-slate-500 dark:text-slate-300 flex flex-col gap-1">
+                ${field.label}${field.helper ? ` <span class="text-[10px] font-normal text-slate-400 dark:text-dark-subtext">${field.helper}</span>` : ''}
+                <input data-plan-field="${field.key}" type="${field.type || 'text'}" class="p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border text-xs" value="${row[field.key] || ''}" placeholder="${field.label}">
+              </label>
+            `).join('');
+            const total = computePlanRowTotal(row);
+            const ratingVal = Number(row.ratingPoint || 0);
+            const costVal = Number(row.costo || total || 0);
+            const cpmVal = ratingVal ? costVal / (ratingVal * 1000) : 0;
+            const cpprVal = ratingVal ? costVal / ratingVal : 0;
+            const ratingDetails = current === 'TV' ? `<p class="text-[11px] text-slate-500 dark:text-dark-subtext">CPM aprox: ${formatCurrency(cpmVal)} · CPPR: ${formatCurrency(cpprVal)}</p>` : '';
+            const options = Object.entries(MEDIA_PLAN_CONFIG).map(([key, conf]) => `<option value="${key}" ${current===key?'selected':''}>${conf.label}</option>`).join('');
+            return `
+            <div class="border border-slate-200 dark:border-dark-border rounded-lg p-3 space-y-3" data-plan-row="${idx}">
+              <div class="flex flex-col md:flex-row md:items-center gap-2 text-xs">
+                <label class="flex-1 text-[11px] font-semibold text-slate-500 dark:text-slate-300">Tipo de medio
+                  <select data-plan-medium class="w-full mt-1 p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border">${options}</select>
+                </label>
+                <p class="text-[11px] font-semibold text-brand-primary">Total: ${formatCurrency(total)}</p>
               </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-2">${fields}</div>
+              ${ratingDetails}
               <button class="text-xs text-red-500 remove-plan-row">Quitar cuadro</button>
-            </div>`).join('');
+            </div>`;
+          }).join('');
+          const mediaSummary = computePlanSummary(sec.mediaPlan || []);
+          const summaryBlock = mediaSummary.summary.length ? `
+            <div class="bg-slate-50 dark:bg-black/40 border border-dashed border-brand-primary/30 rounded-lg p-3 text-xs space-y-2">
+              <p class="font-semibold text-brand-primary">Totales y comisión</p>
+              ${mediaSummary.summary.map(item => `<div class="flex justify-between"><span>${MEDIA_PLAN_CONFIG[item.medium]?.label || item.medium}</span><span>${formatCurrency(item.total)} · Comisión ${Math.round((MEDIA_PLAN_CONFIG[item.medium]?.commission||0)*100)}%: ${formatCurrency(item.commission)}</span></div>`).join('')}
+              <div class="flex justify-between font-semibold text-brand-dark dark:text-white pt-2 border-t border-slate-200 dark:border-dark-border"><span>Total plan</span><span>${formatCurrency(mediaSummary.grandTotal)} · Comisión total: ${formatCurrency(mediaSummary.commissionTotal)}</span></div>
+            </div>` : '';
 
           let specificBlock = `<textarea class="section-body w-full p-3 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border text-sm" rows="3" placeholder="Contenido o notas">${sec.body || ''}</textarea>`;
 
@@ -895,8 +1077,9 @@
           if (sec.type === 'FLOWCHART') specificBlock = `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">${flowFields}</div>`;
           if (sec.type === 'MEDIA_PLAN') specificBlock = `
             <div class="space-y-3">
-              <p class="text-xs text-slate-500 dark:text-dark-subtext">Plan de medios en cuadros por canal, formato y ventana.</p>
+              <p class="text-xs text-slate-500 dark:text-dark-subtext">Plan de medios por formato con cálculo automático de totales, comisión y métricas de TV.</p>
               <div class="space-y-2" data-plan-container>${planRows}</div>
+              ${summaryBlock}
               <button class="text-xs text-brand-primary add-plan-row">Añadir cuadro</button>
             </div>`;
           if (sec.type === 'MEDIA') specificBlock = `
@@ -954,7 +1137,21 @@
         } else if (sec.type === 'FLOWCHART') {
           draft.flow = { ...draft.flow, ...(sec.content || {}) };
         } else if (sec.type === 'MEDIA_PLAN') {
-          draft.mediaPlan = Array.isArray(sec.content) ? sec.content.map(r => ({ canal: r.canal || '', formato: r.formato || '', ventana: r.ventana || r.fecha || '' })) : draft.mediaPlan;
+          if (Array.isArray(sec.content)) {
+            draft.mediaPlan = sec.content.map(r => {
+              const mediumRaw = (r.medium || r.Medium || '').toUpperCase();
+              const medium = MEDIA_PLAN_CONFIG[mediumRaw] ? mediumRaw : 'IMPRESO';
+              const row = createEmptyPlanRow(medium);
+              Object.keys(row).forEach(key => {
+                if (r[key] !== undefined) row[key] = r[key];
+              });
+              if (r.canal) row.medio = r.canal;
+              if (r.formato && row.formato === '') row.formato = r.formato;
+              if ((r.ventana || r.fecha) && row.dia !== undefined) row.dia = r.ventana || r.fecha;
+              if ((r.ventana || r.fecha) && row.tiempo !== undefined && !row.dia) row.tiempo = r.ventana || r.fecha;
+              return row;
+            });
+          }
         } else if (sec.type === 'MEDIA') {
           draft.mediaUrl = typeof sec.content === 'string' ? sec.content : sec.content?.url || '';
         } else if (sec.type === 'ANEXO') {
@@ -998,7 +1195,7 @@
             return { ...base, content: { ...sec.flow } };
           }
           if (sec.type === 'MEDIA_PLAN') {
-            return { ...base, content: (sec.mediaPlan || []).map(row => ({ canal: row.canal || '', formato: row.formato || '', ventana: row.ventana || '' })) };
+            return { ...base, content: (sec.mediaPlan || []).map(row => serializePlanRow(row)) };
           }
           if (sec.type === 'ANEXO') {
             return { ...base, content: { Evento: sec.evento || 'Por definir', Lugar: sec.lugar || '—', Fecha: sec.fecha || '—', Enlace: sec.mediaUrl || '' } };
@@ -1083,8 +1280,14 @@
         if (e.target.dataset.flow) { sec.flow[e.target.dataset.flow] = e.target.value; }
         if (e.target.dataset.planField) {
           const rowIdx = parseInt(e.target.closest('[data-plan-row]')?.dataset.planRow || '0', 10);
-          if (!sec.mediaPlan[rowIdx]) sec.mediaPlan[rowIdx] = { canal: '', formato: '', ventana: '' };
+          if (!sec.mediaPlan[rowIdx]) sec.mediaPlan[rowIdx] = createEmptyPlanRow();
           sec.mediaPlan[rowIdx][e.target.dataset.planField] = e.target.value;
+          renderSections();
+        }
+        if (e.target.dataset.planMedium !== undefined) {
+          const rowIdx = parseInt(e.target.closest('[data-plan-row]')?.dataset.planRow || '0', 10);
+          sec.mediaPlan[rowIdx] = createEmptyPlanRow(e.target.value);
+          renderSections();
         }
       });
 
@@ -1098,7 +1301,7 @@
           const wrapper = e.target.closest('[data-section-id]');
           const sec = sectionDrafts.find(s => s.id === wrapper.dataset.sectionId);
           if (sec) {
-            sec.mediaPlan.push({ canal: '', formato: '', ventana: '' });
+            sec.mediaPlan.push(createEmptyPlanRow());
             renderSections();
           }
         }
@@ -1108,7 +1311,7 @@
           const rowIdx = parseInt(e.target.closest('[data-plan-row]')?.dataset.planRow || '-1', 10);
           if (sec && rowIdx > -1) {
             sec.mediaPlan.splice(rowIdx,1);
-            if (!sec.mediaPlan.length) sec.mediaPlan.push({ canal: '', formato: '', ventana: '' });
+            if (!sec.mediaPlan.length) sec.mediaPlan.push(createEmptyPlanRow());
             renderSections();
           }
         }
