@@ -19,7 +19,7 @@
           },
           colors: {
             brand: {
-              primary: '#0087FC', 
+              primary: '#0087FC',
               secondary: '#0076C7',
               dark: '#005E91',
               bg: '#F2F6FF',
@@ -92,19 +92,365 @@
     }
   </style>
 <script type="importmap">
-{
-  "imports": {
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0"
+  {
+    "imports": {
+      "react": "https://aistudiocdn.com/react@^19.2.0",
+      "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+      "react/": "https://aistudiocdn.com/react@^19.2.0/",
+      "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0"
+    }
   }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
+  </script>
+  <link rel="stylesheet" href="/index.css">
 </head>
 <body class="bg-white dark:bg-dark-bg font-inter text-[#001d26] dark:text-dark-text antialiased overflow-x-hidden transition-colors duration-300">
-  <div id="root"></div>
-<script type="module" src="/index.tsx"></script>
+  <div class="fixed top-0 left-0 w-full h-[520px] bg-gradient-to-b from-blue-50 to-white dark:from-black dark:to-dark-bg -z-10 pointer-events-none opacity-70"></div>
+  <div id="app" class="min-h-screen relative flex flex-col">
+    <header class="fixed top-6 left-0 right-0 z-50 px-4">
+      <nav class="glass-effect border border-[#b6d0ff] dark:border-dark-border rounded-full shadow-[0px_4px_6px_rgba(0,0,0,0.1),0px_10px_15px_rgba(0,0,0,0.1)] px-4 md:px-6 py-3 max-w-[965px] h-[54px] mx-auto flex items-center justify-between transition-all duration-300">
+        <h1 class="text-base md:text-xl font-bold text-[#005e91] dark:text-brand-primary tracking-[-0.5px] leading-5 cursor-pointer hover:opacity-80 transition-opacity" data-nav-title>
+          Buyer Persona
+        </h1>
+        <div class="flex items-center gap-1 md:gap-2">
+          <button data-section="home" class="px-3 md:px-4 h-8 md:h-9 rounded-full font-semibold text-xs md:text-sm leading-5 transition-all duration-300 bg-[#0087fc] text-white hover:bg-[#005e91] hover:scale-105">
+            Inicio
+          </button>
+          <button data-section="portfolio" class="px-3 md:px-4 h-8 md:h-9 rounded-full font-semibold text-xs md:text-sm leading-5 transition-all duration-300 text-[#005e91] dark:text-dark-text hover:text-[#0087fc] hover:bg-brand-bg dark:hover:bg-white/10">
+            Portafolio
+          </button>
+          <button data-section="chatbot" class="px-3 h-8 md:h-9 rounded-full font-semibold text-xs md:text-sm leading-5 transition-colors text-[#c12d2d] hover:text-red-700 dark:text-brand-accent dark:hover:text-red-400">
+            ChatBot
+          </button>
+          <button data-section="cpanel" class="hidden sm:inline px-2 text-[10px] font-mono opacity-50 hover:opacity-100 text-[#005e91] dark:text-dark-subtext" title="Panel de Control">
+            CP
+          </button>
+        </div>
+      </nav>
+    </header>
+
+    <main id="content" class="pt-24 md:pt-[110px] pb-12 px-4 md:px-6 max-w-[1080px] mx-auto w-full flex-1"></main>
+  </div>
+
+  <script type="module">
+    import { sendMessageToGemini } from './services/geminiService.ts';
+
+    const state = {
+      currentSection: 'home',
+      chatMessages: [],
+      isLoading: false,
+      hasStarted: false,
+    };
+
+    const sectionTitles = {
+      home: 'Buyer Persona',
+      portfolio: 'Portafolio',
+      chatbot: 'ChatBot - Jactsu',
+      cpanel: 'Panel de Control'
+    };
+
+    const contentEl = document.getElementById('content');
+    const navTitleEl = document.querySelector('[data-nav-title]');
+    const navButtons = Array.from(document.querySelectorAll('[data-section]'));
+
+    const boldParser = (text) => {
+      return text.split(/(\*\*.*?\*\*)/g).map((part) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+          return `<strong class="font-bold">${part.slice(2, -2)}</strong>`;
+        }
+        return part;
+      }).join('');
+    };
+
+    const resetChatState = () => {
+      state.chatMessages = [];
+      state.isLoading = false;
+      state.hasStarted = false;
+    };
+
+    const scrollToBottom = (container) => {
+      requestAnimationFrame(() => {
+        container.scrollTop = container.scrollHeight;
+      });
+    };
+
+    const renderHome = () => {
+      contentEl.innerHTML = `
+        <section class="animate-fade-in">
+          <div class="mb-8">
+            <p class="inline-flex items-center gap-2 bg-white dark:bg-dark-card border border-[#f2f6ff] dark:border-dark-border px-4 py-2 rounded-full shadow-sm text-xs font-semibold text-[#005e91] dark:text-brand-primary">Perfil destacado</p>
+            <h2 class="text-3xl md:text-4xl font-bold text-[#001d26] dark:text-white mt-4">Jamileth Jackelinne Guerra Aguilar</h2>
+            <p class="text-[#0076c7] dark:text-brand-primary mt-3 max-w-3xl">Especialista en marketing estratégico y diseño de experiencias digitales orientadas a resultados.</p>
+          </div>
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="p-6 bg-white dark:bg-dark-card border border-[#f2f6ff] dark:border-dark-border rounded-2xl shadow">
+              <h3 class="font-semibold text-[#005e91] dark:text-brand-primary mb-2">Rol</h3>
+              <p class="text-sm text-[#001d26] dark:text-dark-subtext">Head of Marketing &amp; CX</p>
+            </div>
+            <div class="p-6 bg-white dark:bg-dark-card border border-[#f2f6ff] dark:border-dark-border rounded-2xl shadow">
+              <h3 class="font-semibold text-[#005e91] dark:text-brand-primary mb-2">Industria</h3>
+              <p class="text-sm text-[#001d26] dark:text-dark-subtext">Software B2B y soluciones data-driven</p>
+            </div>
+            <div class="p-6 bg-white dark:bg-dark-card border border-[#f2f6ff] dark:border-dark-border rounded-2xl shadow">
+              <h3 class="font-semibold text-[#005e91] dark:text-brand-primary mb-2">Objetivo</h3>
+              <p class="text-sm text-[#001d26] dark:text-dark-subtext">Escalar posicionamiento y generar leads calificados</p>
+            </div>
+          </div>
+        </section>
+      `;
+    };
+
+    const renderPortfolio = () => {
+      contentEl.innerHTML = `
+        <section class="animate-fade-in space-y-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#005e91] dark:text-brand-primary">Portafolio</p>
+              <h2 class="text-3xl font-bold text-[#001d26] dark:text-white">Casos recientes</h2>
+            </div>
+            <span class="px-3 py-1 text-xs rounded-full bg-brand-bg text-[#005e91] dark:bg-white/10 dark:text-white">4 proyectos</span>
+          </div>
+          <div class="grid md:grid-cols-2 gap-4">
+            <article class="p-5 bg-white dark:bg-dark-card border border-[#f2f6ff] dark:border-dark-border rounded-2xl shadow">
+              <h3 class="text-lg font-semibold text-[#001d26] dark:text-white">Plan Aurora 2025</h3>
+              <p class="text-sm text-[#0076c7] dark:text-brand-primary mt-1">Replanteamiento estratégico para expansión LATAM.</p>
+            </article>
+            <article class="p-5 bg-white dark:bg-dark-card border border-[#f2f6ff] dark:border-dark-border rounded-2xl shadow">
+              <h3 class="text-lg font-semibold text-[#001d26] dark:text-white">Identidad Nova</h3>
+              <p class="text-sm text-[#0076c7] dark:text-brand-primary mt-1">Sistema visual retrofuturista para fintech sostenible.</p>
+            </article>
+            <article class="p-5 bg-white dark:bg-dark-card border border-[#f2f6ff] dark:border-dark-border rounded-2xl shadow">
+              <h3 class="text-lg font-semibold text-[#001d26] dark:text-white">Órbita Dashboard</h3>
+              <p class="text-sm text-[#0076c7] dark:text-brand-primary mt-1">Rediseño modular con foco en accesibilidad AA.</p>
+            </article>
+            <article class="p-5 bg-white dark:bg-dark-card border border-[#f2f6ff] dark:border-dark-border rounded-2xl shadow">
+              <h3 class="text-lg font-semibold text-[#001d26] dark:text-white">Pulse Activación 360°</h3>
+              <p class="text-sm text-[#0076c7] dark:text-brand-primary mt-1">Activación inmersiva con realidad mixta.</p>
+            </article>
+          </div>
+        </section>
+      `;
+    };
+
+    const renderCPanel = () => {
+      contentEl.innerHTML = `
+        <section class="animate-fade-in">
+          <h2 class="text-3xl font-bold text-[#001d26] dark:text-white mb-4">Panel de control</h2>
+          <p class="text-[#0076c7] dark:text-brand-primary">Configura la información base del portafolio y del asistente.</p>
+          <div class="mt-6 p-6 bg-white dark:bg-dark-card border border-[#f2f6ff] dark:border-dark-border rounded-2xl shadow">
+            <p class="text-sm text-[#001d26] dark:text-dark-subtext">Próximamente podrás editar proyectos, datos de perfil y prompts del chatbot desde aquí.</p>
+          </div>
+        </section>
+      `;
+    };
+
+    const renderChatMessages = (historyEl) => {
+      historyEl.innerHTML = '';
+
+      if (!state.hasStarted) {
+        historyEl.innerHTML = `
+          <div class="h-full flex flex-col items-center justify-center text-center p-8 opacity-70">
+            <div class="w-16 h-16 text-[#0087fc] mb-4 mx-auto">
+              <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.327 24.327 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+              </svg>
+            </div>
+            <p class="text-[#005e91] dark:text-brand-primary font-bold text-lg">¡Hola, Soy Jactsu! Asistente de Jamileth Guerra.</p>
+            <p class="text-[#0076c7] dark:text-brand-secondary text-sm mt-1">¿En qué puedo ayudarte hoy?</p>
+          </div>
+        `;
+        return;
+      }
+
+      state.chatMessages.forEach((msg) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = `flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`;
+        const bubble = document.createElement('div');
+        bubble.className = `max-w-[85%] md:max-w-[75%] px-6 py-4 rounded-2xl text-sm md:text-base leading-relaxed shadow-sm ${
+          msg.role === 'user'
+            ? 'bg-[#0087fc] text-white rounded-br-none'
+            : 'bg-[#f2f6ff] dark:bg-dark-bg text-[#001d26] dark:text-white rounded-bl-none'
+        }`;
+        bubble.innerHTML = boldParser(msg.text);
+        wrapper.appendChild(bubble);
+        historyEl.appendChild(wrapper);
+      });
+
+      if (state.isLoading) {
+        const loadingRow = document.createElement('div');
+        loadingRow.className = 'flex justify-start';
+        loadingRow.innerHTML = `
+          <div class="bg-[#f2f6ff] dark:bg-dark-bg px-6 py-4 rounded-2xl rounded-bl-none flex items-center gap-1.5">
+            <div class="w-2 h-2 bg-[#0076c7]/60 dark:bg-brand-primary rounded-full animate-bounce"></div>
+            <div class="w-2 h-2 bg-[#0076c7]/60 dark:bg-brand-primary rounded-full animate-bounce delay-75"></div>
+            <div class="w-2 h-2 bg-[#0076c7]/60 dark:bg-brand-primary rounded-full animate-bounce delay-150"></div>
+          </div>`;
+        historyEl.appendChild(loadingRow);
+      }
+    };
+
+    const renderChatbot = () => {
+      contentEl.innerHTML = `
+        <section class="pt-4 md:pt-6 pb-2 flex flex-col items-center h-full animate-slide-up">
+          <div class="mb-8 text-center">
+            <div class="inline-flex items-center gap-2 bg-white dark:bg-dark-card border border-[#f2f6ff] dark:border-dark-border px-6 py-2 rounded-full shadow-sm mb-4">
+              <svg class="w-5 h-5 text-[#005e91] dark:text-brand-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <span class="text-xs md:text-sm font-bold text-[#005e91] dark:text-brand-primary tracking-widest uppercase">Chatbot Jactsu</span>
+            </div>
+            <h2 class="text-3xl font-bold text-[#001d26] dark:text-white tracking-tight">Asistente especializado</h2>
+            <p class="text-[#0076c7] dark:text-brand-primary mt-2 text-sm md:text-base">Consulta sobre perfil, experiencias, portafolio y más.</p>
+          </div>
+
+          <div class="w-full bg-white dark:bg-dark-card rounded-[32px] border border-[#f2f6ff] dark:border-dark-border shadow-xl overflow-hidden flex flex-col h-[600px] max-h-[75vh] relative">
+            <div data-history class="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 scrollbar-hide"></div>
+            <div class="p-4 md:p-6 border-t border-[#f2f6ff] dark:border-dark-border bg-white dark:bg-dark-card">
+              <div class="relative flex items-center">
+                <input type="text" data-input placeholder="Escribe tu mensaje..." class="w-full bg-[#f8fbff] dark:bg-dark-bg border border-[#f2f6ff] dark:border-brand-dark text-[#001d26] dark:text-white rounded-full py-4 pl-6 pr-14 focus:outline-none focus:ring-2 focus:ring-[#0087fc]/20 focus:border-[#0087fc] transition-all text-sm md:text-base placeholder-[#0076c7]/50 dark:placeholder-brand-secondary" />
+                <button data-send class="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-[#0087fc] text-white rounded-full hover:bg-[#005e91] transition-colors disabled:opacity-50">
+                  <svg class="w-5 h-5 md:w-6 md:h-6 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+
+      const historyEl = contentEl.querySelector('[data-history]');
+      const inputEl = contentEl.querySelector('[data-input]');
+      const sendButton = contentEl.querySelector('[data-send]');
+
+      const updateUI = () => {
+        renderChatMessages(historyEl);
+        sendButton.disabled = state.isLoading || !inputEl.value.trim();
+        scrollToBottom(historyEl);
+      };
+
+      const handleSend = async () => {
+        const text = inputEl.value.trim();
+        if (!text || state.isLoading) return;
+
+        state.hasStarted = true;
+        const userMessage = { id: Date.now().toString(), role: 'user', text };
+        state.chatMessages.push(userMessage);
+        inputEl.value = '';
+        state.isLoading = true;
+
+        const historyPayload = state.chatMessages.map((msg) => ({
+          role: msg.role,
+          parts: [{ text: msg.text }]
+        }));
+
+        const botMessageId = `${Date.now()}-bot`;
+        state.chatMessages.push({ id: botMessageId, role: 'model', text: '' });
+        updateUI();
+
+        try {
+          const streamResult = await sendMessageToGemini(userMessage.text, historyPayload.slice(0, -1));
+          let accumulatedText = '';
+          for await (const chunk of streamResult) {
+            const chunkText = chunk.text;
+            if (chunkText) {
+              accumulatedText += chunkText;
+              state.chatMessages = state.chatMessages.map((msg) =>
+                msg.id === botMessageId ? { ...msg, text: accumulatedText } : msg
+              );
+              updateUI();
+            }
+          }
+        } catch (error) {
+          console.error(error);
+          state.chatMessages = state.chatMessages.map((msg) =>
+            msg.id === botMessageId
+              ? {
+                  ...msg,
+                  text: 'Lo siento, he tenido un problema conectando con mi cerebro digital. ¿Podrías intentar de nuevo?'
+                }
+              : msg
+          );
+        } finally {
+          state.isLoading = false;
+          updateUI();
+        }
+      };
+
+      sendButton.addEventListener('click', handleSend);
+      inputEl.addEventListener('input', () => {
+        sendButton.disabled = state.isLoading || !inputEl.value.trim();
+      });
+      inputEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          handleSend();
+        }
+      });
+
+      renderChatMessages(historyEl);
+    };
+
+    const setActiveButton = (section) => {
+      navButtons.forEach((btn) => {
+        const isActive = btn.dataset.section === section;
+        btn.classList.toggle('bg-[#0087fc]', isActive && section === 'home');
+        btn.classList.toggle('text-white', isActive && section === 'home');
+        btn.classList.toggle('hover:bg-[#005e91]', isActive && section === 'home');
+
+        if (section !== 'home' && btn.dataset.section === section) {
+          if (section === 'portfolio') {
+            btn.className = 'px-3 md:px-4 h-8 md:h-9 rounded-full font-semibold text-xs md:text-sm leading-5 transition-all duration-300 bg-[#0087fc] text-white hover:bg-[#005e91]';
+          } else if (section === 'chatbot') {
+            btn.className = 'px-3 h-8 md:h-9 rounded-full font-semibold text-xs md:text-sm leading-5 transition-colors text-[#c12d2d] underline underline-offset-4';
+          } else {
+            btn.className = 'hidden sm:inline px-2 text-[10px] font-mono opacity-100 text-brand-primary';
+          }
+        } else if (btn.dataset.section !== 'home') {
+          if (btn.dataset.section === 'chatbot') {
+            btn.className = 'px-3 h-8 md:h-9 rounded-full font-semibold text-xs md:text-sm leading-5 transition-colors text-[#c12d2d] hover:text-red-700 dark:text-brand-accent dark:hover:text-red-400';
+          } else if (btn.dataset.section === 'cpanel') {
+            btn.className = 'hidden sm:inline px-2 text-[10px] font-mono opacity-50 hover:opacity-100 text-[#005e91] dark:text-dark-subtext';
+          } else {
+            btn.className = 'px-3 md:px-4 h-8 md:h-9 rounded-full font-semibold text-xs md:text-sm leading-5 transition-all duration-300 text-[#005e91] dark:text-dark-text hover:text-[#0087fc] hover:bg-brand-bg dark:hover:bg-white/10';
+          }
+        }
+      });
+    };
+
+    const showSection = (section) => {
+      if (state.currentSection === 'chatbot' && section !== 'chatbot') {
+        resetChatState();
+      }
+
+      state.currentSection = section;
+      navTitleEl.textContent = sectionTitles[section] || 'Buyer Persona';
+      setActiveButton(section);
+
+      switch (section) {
+        case 'portfolio':
+          renderPortfolio();
+          break;
+        case 'chatbot':
+          renderChatbot();
+          break;
+        case 'cpanel':
+          renderCPanel();
+          break;
+        case 'home':
+        default:
+          renderHome();
+          break;
+      }
+    };
+
+    const initStaticPage = () => {
+      navButtons.forEach((btn) => {
+        btn.addEventListener('click', () => showSection(btn.dataset.section));
+      });
+      showSection(state.currentSection);
+    };
+
+    document.addEventListener('DOMContentLoaded', initStaticPage);
+  </script>
 </body>
 </html>
