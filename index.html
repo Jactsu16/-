@@ -28,7 +28,7 @@
       "image": "https://c.animaapp.com/AONx6myv/img/mask-group@2x.png"
     }
   </script>
-  <title>Buyer Persona - Jamileth Jackelinne Guerra Aguilar</title>
+  <title>PAD - Jamileth Jackelinne Guerra Aguilar</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
@@ -90,10 +90,11 @@
 
   <header class="fixed top-6 left-0 right-0 z-50 px-4">
     <nav class="glass-effect border border-[#b6d0ff] dark:border-dark-border rounded-full shadow px-4 md:px-6 py-3 max-w-[965px] h-[54px] mx-auto flex items-center justify-between transition-all duration-300">
-      <h1 id="pageTitle" class="text-base md:text-xl font-bold text-brand-dark dark:text-brand-primary tracking-[-0.5px] leading-5 cursor-pointer">Buyer Persona</h1>
+      <h1 id="pageTitle" class="text-base md:text-xl font-bold text-brand-dark dark:text-brand-primary tracking-[-0.5px] leading-5 cursor-pointer">PAD · Inicio</h1>
       <div class="flex items-center gap-2">
         <button data-view="HOME" class="nav-btn px-3 md:px-4 h-8 md:h-9 rounded-full font-semibold text-xs md:text-sm leading-5 transition-all duration-300">Inicio</button>
         <button data-view="PORTFOLIO" class="nav-btn px-3 md:px-4 h-8 md:h-9 rounded-full font-semibold text-xs md:text-sm leading-5 transition-all duration-300">Portafolio</button>
+        <button data-view="CHATBOT" class="nav-btn px-3 md:px-4 h-8 md:h-9 rounded-full font-semibold text-xs md:text-sm leading-5 transition-all duration-300">ChatBot</button>
         <button data-view="CPANEL" class="nav-btn hidden sm:inline px-2 text-[10px] font-mono opacity-70 hover:opacity-100" title="Panel de Control">CP</button>
         <button id="darkToggle" class="ml-1 p-1.5 rounded-full text-brand-dark dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors" title="Modo oscuro">
           <svg id="sunIcon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
@@ -106,6 +107,7 @@
   <main class="pt-24 md:pt-[110px]">
     <section id="homeSection" class="min-h-screen px-4 md:px-6 max-w-[1080px] mx-auto pb-16"></section>
     <section id="portfolioSection" class="hidden min-h-screen px-4 md:px-6 max-w-[1200px] mx-auto pb-16"></section>
+    <section id="chatbotSection" class="hidden min-h-screen px-4 md:px-6 max-w-[1000px] mx-auto pb-16"></section>
     <section id="cvSection" class="hidden min-h-screen px-4 md:px-6 max-w-[1100px] mx-auto pb-16"></section>
     <section id="cpanelSection" class="hidden min-h-screen px-4 md:px-6 max-w-[900px] mx-auto pb-16"></section>
   </main>
@@ -454,19 +456,20 @@
     const sections = {
       HOME: document.getElementById('homeSection'),
       PORTFOLIO: document.getElementById('portfolioSection'),
+      CHATBOT: document.getElementById('chatbotSection'),
       CV: document.getElementById('cvSection'),
       CPANEL: document.getElementById('cpanelSection')
     };
+    const viewTitles = {
+      HOME: 'Inicio',
+      PORTFOLIO: 'Portafolio',
+      CHATBOT: 'ChatBot',
+      CV: 'CV interactivo',
+      CPANEL: 'CPanel'
+    };
 
     function updateNav() {
-      document.getElementById('pageTitle').textContent =
-        currentView === 'HOME'
-          ? 'Buyer Persona'
-          : currentView === 'PORTFOLIO'
-            ? 'Portafolio'
-            : currentView === 'CV'
-              ? 'CV interactivo'
-              : 'Panel de Control';
+      document.getElementById('pageTitle').textContent = `PAD · ${viewTitles[currentView] || 'Inicio'}`;
       navButtons.forEach(btn => {
         const target = btn.dataset.view;
         btn.classList.remove('bg-brand-primary','text-white','shadow-md','underline','opacity-100');
@@ -1471,8 +1474,32 @@
       renderProjectList();
     }
 
+    function renderChatbot() {
+      const container = document.getElementById('chatbotSection');
+      if (!container) return;
+      container.innerHTML = `
+        <div class="bg-white dark:bg-dark-card border border-[#b6d0ff] dark:border-dark-border rounded-3xl shadow-lg p-8 md:p-12">
+          <p class="text-[11px] uppercase tracking-[0.25em] text-brand-primary font-bold mb-2">ChatBot</p>
+          <h2 class="text-3xl md:text-4xl font-bold text-brand-dark dark:text-white mb-4">Asistente en preparación</h2>
+          <p class="text-slate-600 dark:text-dark-subtext max-w-2xl mb-6">Pronto volverá el chatbot híbrido con las preguntas más frecuentes y recomendaciones personalizadas. Mientras tanto, puedes explorar mi portafolio o contactar directo desde el panel.</p>
+          <div class="flex flex-wrap gap-3">
+            <button class="px-4 py-2 rounded-full bg-brand-primary text-white font-semibold shadow" data-view="PORTFOLIO">Ver portafolio</button>
+            <button class="px-4 py-2 rounded-full bg-slate-100 dark:bg-white/10 text-brand-dark dark:text-white font-semibold shadow" data-view="HOME">Volver al inicio</button>
+          </div>
+        </div>`;
+
+      container.querySelectorAll('button[data-view]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentView = btn.dataset.view;
+          updateNav();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
+    }
+
     renderProfile();
     renderPortfolio();
+    renderChatbot();
     renderCV();
     renderCPanel();
     updateNav();
