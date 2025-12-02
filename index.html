@@ -3,6 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Portafolio estático de Jamileth Jackelinne Guerra Aguilar con estrategia, diseño, websites y fraguas de ideas.">
+  <meta name="keywords" content="estrategia, diseño, websites, publicidad, Jamileth Guerra, portafolio, AI Hybrid">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://jamileth-jactsu.example/">
+  <meta property="og:title" content="Portafolio - Jamileth Jackelinne Guerra Aguilar">
+  <meta property="og:description" content="Estrategia, diseño, websites, varios y fraguas de ideas en un solo lugar.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jamileth-jactsu.example/">
+  <meta property="og:image" content="https://c.animaapp.com/AONx6myv/img/mask-group@2x.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Portafolio - Jamileth Jackelinne Guerra Aguilar">
+  <meta name="twitter:description" content="Explora estrategia, diseño, websites y fraguas de ideas.">
+  <meta name="twitter:image" content="https://c.animaapp.com/AONx6myv/img/mask-group@2x.png">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Jamileth Jackelinne Guerra Aguilar",
+      "jobTitle": "Estratega Publicitaria & AI Hybrid",
+      "url": "https://jamileth-jactsu.example/",
+      "sameAs": ["https://www.linkedin.com", "https://www.behance.net"],
+      "knowsAbout": ["estrategia", "diseño", "website", "varios", "fraguas"],
+      "image": "https://c.animaapp.com/AONx6myv/img/mask-group@2x.png"
+    }
+  </script>
   <title>Buyer Persona - Jamileth Jackelinne Guerra Aguilar</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -139,15 +164,21 @@
       { name: 'Liderazgo & Trabajo en Equipo', percentage: 90 },
     ];
 
-    let projects = [
+    const STORAGE_KEY = 'jjga-portfolio-v2';
+    const CATEGORY_OPTIONS = ['estrategia', 'diseño', 'website', 'varios', 'fraguas'];
+    const uploadDir = 'uploads';
+
+    const seedProjects = [
       {
         id: '1',
         title: 'Plan Aurora 2025',
         subtitle: 'Replanteamiento estratégico para la expansión de Visela en LATAM con enfoque data-driven y adopción progresiva de IA.',
-        category: 'Estrategia',
+        category: 'estrategia',
         tags: ['may 2025', 'Real'],
         thumbnailUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2426&auto=format&fit=crop',
-        date: 'may 2025',
+        date: '2025-05-01',
+        updatedAt: Date.now() - 1000 * 60 * 60 * 24 * 30,
+        draft: false,
         sections: [
           { id: 's1', title: 'Introducción', type: 'TEXT', content: 'Visela busca expandir su cuota de mercado en Latinoamérica utilizando tecnologías emergentes.' },
           { id: 's2', title: 'Brief Estratégico', type: 'BRIEF', content: { antecedentes: 'Empresa líder en software B2B en Europa, poca presencia en LATAM.', historiaProducto: 'Suite de gestión creada en 2010.', caracteristicas: 'SaaS, Modular, AI-integrated.', beneficios: 'Optimización de flujos de trabajo en un 40%.', distribucion: 'Venta directa digital y partners locales.', target: 'CTOs y Gerentes de Operaciones en empresas medianas.', posicionamiento: 'La solución más inteligente para escalar.', precio: 'Suscripción Tiered (Basic, Pro, Enterprise).', medio: 'LinkedIn Ads, Webinars, SEO.', competencia: 'SAP, Oracle (en segmento alto), soluciones locales.' } }
@@ -157,33 +188,110 @@
         id: '2',
         title: 'Identidad Nova',
         subtitle: 'Sistema visual retrofuturista para una fintech de economía circular.',
-        category: 'Diseño',
+        category: 'diseño',
         tags: ['nov 2024', 'Ficticio'],
         thumbnailUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2670&auto=format&fit=crop',
-        date: 'nov 2024',
+        date: '2024-11-01',
+        updatedAt: Date.now() - 1000 * 60 * 60 * 24 * 60,
+        draft: false,
         sections: [ { id: 's1', title: 'Concepto Visual', type: 'TEXT', content: 'Fusión de estética 80s con minimalismo moderno para denotar sostenibilidad y tecnología.' } ]
       },
       {
         id: '3',
         title: 'Órbita Dashboard',
         subtitle: 'Rediseño de dashboard modular con foco en experiencias micro-interactivas y accesibilidad AA.',
-        category: 'Website',
+        category: 'website',
         tags: ['ene 2025', 'Estudio de Caso'],
         thumbnailUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2670&auto=format&fit=crop',
-        date: 'ene 2025',
+        date: '2025-01-15',
+        updatedAt: Date.now() - 1000 * 60 * 60 * 24 * 10,
+        draft: false,
         sections: []
       },
       {
         id: '4',
         title: 'Pulse Activación 360°',
         subtitle: 'Activación inmersiva con realidad mixta para lanzar la línea Pulse Experience.',
-        category: 'Varios',
+        category: 'varios',
         tags: ['sept 2023', 'Real'],
         thumbnailUrl: 'https://images.unsplash.com/photo-1626379953822-baec19c3accd?q=80&w=2670&auto=format&fit=crop',
-        date: 'sept 2023',
+        date: '2023-09-10',
+        updatedAt: Date.now() - 1000 * 60 * 60 * 24 * 300,
+        draft: false,
         sections: [ { id: 'f1', title: 'Flowchart del Evento', type: 'FLOWCHART', content: { objetivo: 'Lograr 500 demos en vivo durante el fin de semana de lanzamiento.', estrategiaMedios: 'Campaña teaser en Instagram + Influencers Tech.', presupuesto: '$15,000 USD', medidas: 'KPIs: Foot traffic, Demos completados, Social Mentions.' } } ]
+      },
+      {
+        id: '5',
+        title: 'Bitácora de Fragua',
+        subtitle: 'Notas de investigación rápida con feedback de la comunidad.',
+        category: 'fraguas',
+        tags: ['abr 2025', 'Borrador'],
+        thumbnailUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2670&auto=format&fit=crop',
+        date: '2025-04-02',
+        updatedAt: Date.now() - 1000 * 60 * 60 * 24 * 20,
+        draft: false,
+        sections: [ { id: 'fg1', title: 'Entrada inicial', type: 'TEXT', content: 'Discusión abierta para ideas rápidas y feedback tipo foro.' } ],
+        isIdeaForge: true
       }
     ];
+
+    function loadProjects() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) return parsed;
+        }
+      } catch (e) {}
+      saveProjects(seedProjects);
+      return seedProjects;
+    }
+
+    function saveProjects(list = projects) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      } catch (e) {}
+    }
+
+    let projects = loadProjects();
+    let sectionDrafts = [];
+    let assetDrafts = [];
+    let editingId = null;
+
+    function normalizeCategory(cat = '') {
+      return cat.toLowerCase();
+    }
+
+    function formatCategory(cat = '') {
+      const value = normalizeCategory(cat);
+      if (value === 'diseño') return 'Diseño';
+      if (value === 'fraguas') return 'Fraguas';
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    }
+
+    function visibleProjects() {
+      const now = Date.now();
+      return projects.filter(p => !p.draft && (!p.scheduledAt || p.scheduledAt <= now));
+    }
+
+    function processSchedules() {
+      const now = Date.now();
+      let changed = false;
+      projects = projects.map(p => {
+        if (p.scheduledAt && now >= p.scheduledAt) {
+          changed = true;
+          return { ...p, draft: false, scheduledAt: null, updatedAt: now };
+        }
+        return p;
+      });
+      if (changed) {
+        saveProjects();
+        renderPortfolio();
+        if (typeof window.renderProjectList === 'function') window.renderProjectList();
+      }
+    }
+
+    setInterval(processSchedules, 30000);
 
     let currentView = 'HOME';
     const navButtons = document.querySelectorAll('.nav-btn');
@@ -215,7 +323,11 @@
     }
 
     navButtons.forEach(btn => btn.addEventListener('click', () => {
-      currentView = btn.dataset.view;
+      const nextView = btn.dataset.view;
+      if (currentView === 'CPANEL' && nextView !== 'CPANEL' && typeof window.lockPanelSession === 'function') {
+        window.lockPanelSession();
+      }
+      currentView = nextView;
       updateNav();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }));
@@ -402,23 +514,26 @@
         <div class="bg-slate-100 dark:bg-dark-card rounded-2xl overflow-hidden aspect-[4/3] mb-4 relative shadow-sm border border-transparent dark:border-dark-border">
           <img src="${project.thumbnailUrl}" alt="${project.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
           <div class="absolute top-4 left-4">
-            <span class="bg-white/90 dark:bg-black/80 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-brand-dark dark:text-brand-primary border border-white/20">${project.category}</span>
+            <span class="bg-white/90 dark:bg-black/80 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-brand-dark dark:text-brand-primary border border-white/20">${formatCategory(project.category)}</span>
           </div>
         </div>
         <div>
           <h3 class="text-2xl font-bold text-brand-dark dark:text-white mb-2 group-hover:text-brand-primary transition-colors">${project.title}</h3>
           <p class="text-slate-600 dark:text-dark-subtext text-sm leading-relaxed mb-3 line-clamp-2">${project.subtitle}</p>
           <div class="flex gap-2 flex-wrap">
-            ${project.tags.map(tag => `<span class="bg-blue-50 dark:bg-white/5 text-brand-secondary dark:text-brand-secondary text-xs px-2 py-1 rounded font-medium">${tag}</span>`).join('')}
+            ${(project.tags || []).map(tag => `<span class="bg-blue-50 dark:bg-white/5 text-brand-secondary dark:text-brand-secondary text-xs px-2 py-1 rounded font-medium">${tag}</span>`).join('')}
           </div>
         </div>
       </div>`;
     }
 
     function renderPortfolio() {
+      processSchedules();
       const container = document.getElementById('portfolioSection');
-      const ideaForge = projects.filter(p => p.isIdeaForge);
-      const filtered = projects.filter(p => !p.isIdeaForge);
+      const liveProjects = visibleProjects();
+      const ideaForge = liveProjects.filter(p => p.category === 'fraguas' || p.isIdeaForge).sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0));
+      let filtered = liveProjects.filter(p => p.category !== 'fraguas' && !p.isIdeaForge);
+      filtered = filtered.sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0));
       container.innerHTML = `
         <div class="text-center mb-12">
           <div class="inline-block border border-[#b6d0ff] dark:border-brand-primary/50 rounded-full px-6 py-1 mb-6">
@@ -437,7 +552,7 @@
           ${ideaForge.length === 0 ? `<div class="text-center py-12 bg-slate-50 dark:bg-dark-card/30 rounded-2xl border border-dashed border-slate-300 dark:border-dark-border"><p class="text-slate-400 dark:text-dark-subtext">No hay documentos en la fragua aún.</p></div>` : `<div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="ideaGrid"></div>`}
         </div>`;
 
-      const categories = ['Todos','Estrategia','Diseño','Website','Varios'];
+      const categories = ['Todos', ...CATEGORY_OPTIONS.map(formatCategory)];
       const filterButtons = document.getElementById('filterButtons');
       categories.forEach((cat, idx) => {
         const btn = document.createElement('button');
@@ -452,7 +567,12 @@
 
       const grid = document.getElementById('projectGrid');
       function paintGrid(active='Todos') {
-        grid.innerHTML = filtered.filter(p => active==='Todos' || p.category===active).map((p,i) => buildProjectCard(p,i)).join('');
+        const normalized = normalizeCategory(active);
+        if (normalized === 'fraguas') {
+          grid.innerHTML = ideaForge.map((p,i) => buildProjectCard(p,i)).join('');
+          return;
+        }
+        grid.innerHTML = filtered.filter(p => active==='Todos' || normalizeCategory(p.category)===normalized).map((p,i) => buildProjectCard(p,i)).join('');
       }
       paintGrid();
       filterButtons.addEventListener('click', (e) => {
@@ -496,7 +616,7 @@
           <img src="${project.thumbnailUrl}" alt="${project.title}" class="w-full h-full object-cover" />
           <div class="absolute inset-0 bg-gradient-to-t from-white dark:from-black to-transparent"></div>
           <div class="absolute bottom-6 left-6 md:left-10">
-            <span class="bg-brand-primary text-white text-xs font-bold px-3 py-1 rounded mb-3 inline-block">${project.category}</span>
+            <span class="bg-brand-primary text-white text-xs font-bold px-3 py-1 rounded mb-3 inline-block">${formatCategory(project.category)}</span>
             <h2 class="text-3xl md:text-5xl font-bold text-brand-dark dark:text-white leading-tight">${project.title}</h2>
           </div>
         </div>
@@ -525,6 +645,22 @@
       }
       if (section.type === 'IMAGE') {
         return `<div class="border-t border-slate-100 dark:border-white/10 pt-8"><h3 class="text-xl font-bold text-brand-dark dark:text-brand-primary mb-6">${section.title}</h3><img src="${section.content}" alt="${section.title}" class="rounded-2xl" /></div>`;
+      }
+      if (section.type === 'MEDIA') {
+        const url = section.content;
+        const isVideo = url?.includes('.mp4') || url?.includes('.webm') || section.mediaType === 'video';
+        const isPdf = url?.includes('.pdf') || section.mediaType === 'pdf';
+        if (isVideo) {
+          return `<div class="border-t border-slate-100 dark:border-white/10 pt-8 space-y-4"><h3 class="text-xl font-bold text-brand-dark dark:text-brand-primary mb-2">${section.title}</h3><video controls class="w-full rounded-2xl shadow"><source src="${url}"></video></div>`;
+        }
+        if (isPdf) {
+          return `<div class="border-t border-slate-100 dark:border-white/10 pt-8 space-y-3"><h3 class="text-xl font-bold text-brand-dark dark:text-brand-primary">${section.title}</h3><div class="bg-white dark:bg-dark-card border border-dashed border-brand-primary/30 rounded-xl p-4 text-sm text-slate-700 dark:text-dark-subtext">Vista previa PDF:</div><iframe src="${url}" class="w-full h-80 rounded-xl border border-slate-200 dark:border-white/10"></iframe></div>`;
+        }
+        return `<div class="border-t border-slate-100 dark:border-white/10 pt-8 space-y-3"><h3 class="text-xl font-bold text-brand-dark dark:text-brand-primary">${section.title}</h3><img src="${url}" alt="${section.title}" class="rounded-2xl max-h-96 object-cover w-full" /></div>`;
+      }
+      if (section.type === 'ANEXO') {
+        const info = section.content || {};
+        return `<div class="border-t border-slate-100 dark:border-white/10 pt-8 space-y-4"><h3 class="text-xl font-bold text-brand-dark dark:text-brand-primary">${section.title}</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4">${Object.entries(info).map(([k,v]) => `<div class="bg-slate-50 dark:bg-white/5 p-4 rounded-xl"><p class="text-xs font-bold uppercase text-brand-secondary dark:text-brand-primary mb-1">${k}</p><p class="text-sm text-slate-700 dark:text-dark-subtext">${v}</p></div>`).join('')}</div></div>`;
       }
       return '';
     }
@@ -555,72 +691,315 @@
             <button id="unlockBtn" class="w-full py-3 bg-brand-primary text-white rounded-xl font-bold hover:bg-brand-dark transition-all shadow-md">Desbloquear</button>
           </div>
         </div>
-        <div id="formCard" class="hidden bg-white dark:bg-dark-card border border-[#b6d0ff] dark:border-dark-border rounded-2xl p-6 md:p-8 shadow-neon backdrop-blur-md">
-          <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-brand-dark dark:text-dark-highlight flex items-center gap-3"><span class="bg-slate-100 dark:bg-white/10 p-2 rounded-lg">🎛️</span>Nuevo Proyecto</h2>
-            <button id="lockBtn" class="text-xs text-red-500 hover:underline">Cerrar Sesión</button>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div class="space-y-1">
-              <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Título</label>
-              <input id="titleInput" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white focus:ring-2 focus:ring-brand-primary outline-none" />
+        <div id="cpanelContent" class="hidden bg-white dark:bg-dark-card border border-[#b6d0ff] dark:border-dark-border rounded-2xl p-6 md:p-8 shadow-neon backdrop-blur-md">
+          <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-6">
+            <div class="flex items-center gap-2">
+              <button id="newBtn" class="px-3 py-2 rounded-lg text-sm font-semibold bg-brand-primary text-white shadow">Nuevo/Editar</button>
+              <button id="listBtn" class="px-3 py-2 rounded-lg text-sm font-semibold bg-slate-100 dark:bg-white/10 text-brand-dark dark:text-white">Lista</button>
             </div>
-            <div class="space-y-1">
-              <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Categoría</label>
-              <select id="categoryInput" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white outline-none">
-                <option value="Estrategia">Estrategia</option>
-                <option value="Diseño">Diseño</option>
-                <option value="Website">Website</option>
-                <option value="Varios">Varios</option>
-              </select>
-            </div>
-            <div class="space-y-1 md:col-span-2">
-              <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Subtítulo</label>
-              <textarea id="subtitleInput" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white focus:ring-2 focus:ring-brand-primary outline-none" rows="2"></textarea>
-            </div>
-            <div class="space-y-1">
-              <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Estado</label>
-              <select id="statusInput" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white outline-none">
-                <option value="Real">Real</option>
-                <option value="Ficticio">Ficticio</option>
-                <option value="Estudio de Caso">Estudio de Caso</option>
-              </select>
-            </div>
-            <div class="space-y-1">
-              <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Fecha</label>
-              <input id="dateInput" type="date" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white focus:ring-2 focus:ring-brand-primary outline-none" />
-            </div>
-            <div class="space-y-1 md:col-span-2">
-              <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">URL de miniatura</label>
-              <input id="thumbInput" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white focus:ring-2 focus:ring-brand-primary outline-none" placeholder="https://" />
-            </div>
-            <div class="space-y-1 md:col-span-2">
-              <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Notas</label>
-              <textarea id="notesInput" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white focus:ring-2 focus:ring-brand-primary outline-none" rows="3" placeholder="Describe el objetivo o resultados"></textarea>
-            </div>
-            <div class="flex items-center gap-2 md:col-span-2">
-              <input id="ideaInput" type="checkbox" class="h-4 w-4 text-brand-primary border-slate-300 rounded" />
-              <label class="text-sm text-slate-600 dark:text-dark-subtext">Guardar en "Fraguas de ideas"</label>
+            <div class="flex items-center gap-3 text-xs text-slate-500 dark:text-dark-subtext">
+              <span class="px-2 py-1 bg-slate-100 dark:bg-white/10 rounded-full">Categorías: estrategia, diseño, website, varios, fraguas</span>
+              <button id="lockBtn" class="text-red-500 hover:underline">Cerrar Sesión</button>
             </div>
           </div>
-          <button id="publishBtn" class="w-full py-3 bg-brand-primary text-white rounded-xl font-bold hover:bg-brand-dark transition-all shadow-md">Publicar proyecto</button>
+          <div id="formView" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Título</label>
+                <input id="titleInput" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white focus:ring-2 focus:ring-brand-primary outline-none" />
+              </div>
+              <div class="space-y-1">
+                <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Categoría</label>
+                <select id="categoryInput" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white outline-none"></select>
+              </div>
+              <div class="space-y-1 md:col-span-2">
+                <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Subtítulo</label>
+                <textarea id="subtitleInput" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white focus:ring-2 focus:ring-brand-primary outline-none" rows="2"></textarea>
+              </div>
+              <div class="space-y-1">
+                <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Estado</label>
+                <select id="statusInput" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white outline-none">
+                  <option value="Real">Real</option>
+                  <option value="Ficticio">Ficticio</option>
+                  <option value="Estudio de Caso">Estudio de Caso</option>
+                </select>
+              </div>
+              <div class="space-y-1">
+                <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Fecha</label>
+                <input id="dateInput" type="date" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white focus:ring-2 focus:ring-brand-primary outline-none" />
+              </div>
+              <div class="space-y-1 md:col-span-2">
+                <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">URL de miniatura</label>
+                <input id="thumbInput" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white focus:ring-2 focus:ring-brand-primary outline-none" placeholder="https://" />
+              </div>
+              <div class="space-y-1 md:col-span-2">
+                <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Resumen / Notas</label>
+                <textarea id="notesInput" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white focus:ring-2 focus:ring-brand-primary outline-none" rows="3" placeholder="Describe el objetivo o resultados"></textarea>
+              </div>
+              <div class="flex flex-wrap gap-4 md:col-span-2">
+                <label class="flex items-center gap-2 text-sm text-slate-600 dark:text-dark-subtext"><input id="draftInput" type="checkbox" class="h-4 w-4 text-brand-primary border-slate-300 rounded" /> Guardar como borrador</label>
+                <label class="flex items-center gap-2 text-sm text-slate-600 dark:text-dark-subtext"><input id="ideaInput" type="checkbox" class="h-4 w-4 text-brand-primary border-slate-300 rounded" /> Enviar a "Fraguas"</label>
+              </div>
+              <div class="space-y-1 md:col-span-2">
+                <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Programar publicación (automática)</label>
+                <input id="scheduleInput" type="datetime-local" class="w-full p-3 bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white focus:ring-2 focus:ring-brand-primary outline-none" />
+              </div>
+            </div>
+
+            <div class="border border-dashed border-brand-primary/40 dark:border-brand-primary/30 rounded-xl p-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <h3 class="text-lg font-bold text-brand-dark dark:text-brand-highlight">Archivos (png, jpg, video, pdf)</h3>
+                <input id="fileInput" type="file" accept="image/png,image/jpeg,video/*,.pdf" multiple class="text-sm" />
+              </div>
+              <p class="text-xs text-slate-500 dark:text-dark-subtext">Se guardan en la carpeta virtual <code>${uploadDir}/</code> y se pueden usar como miniatura o media.</p>
+              <div id="assetList" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div>
+            </div>
+
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <h3 class="text-lg font-bold text-brand-dark dark:text-brand-highlight">Secciones / Anexos</h3>
+                <button id="addSectionBtn" class="px-3 py-2 rounded-lg bg-brand-primary text-white text-sm font-semibold">Añadir sección</button>
+              </div>
+              <div id="sectionList" class="space-y-3"></div>
+            </div>
+
+            <button id="publishBtn" class="w-full py-3 bg-brand-primary text-white rounded-xl font-bold hover:bg-brand-dark transition-all shadow-md">Guardar</button>
+          </div>
+
+          <div id="listView" class="hidden space-y-4">
+            <p class="text-sm text-slate-500 dark:text-dark-subtext">Ordenados por última edición (recientes primero). Desde aquí puedes editar, programar, borrar o marcar como borrador.</p>
+            <div id="projectList" class="space-y-3"></div>
+          </div>
         </div>`;
 
       const PASSWORD = 'J162004';
+      const categorySelect = document.getElementById('categoryInput');
+      CATEGORY_OPTIONS.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = formatCategory(cat);
+        categorySelect.appendChild(opt);
+      });
+
+      function lockPanel() {
+        const lockCard = document.getElementById('lockCard');
+        const content = document.getElementById('cpanelContent');
+        const pwd = document.getElementById('passwordInput');
+        editingId = null;
+        sectionDrafts = [];
+        assetDrafts = [];
+        if (pwd) pwd.value = '';
+        if (content) content.classList.add('hidden');
+        if (lockCard) lockCard.classList.remove('hidden');
+      }
+
+      window.lockPanelSession = lockPanel;
+
+      function switchView(view = 'form') {
+        document.getElementById('formView').classList.toggle('hidden', view !== 'form');
+        document.getElementById('listView').classList.toggle('hidden', view !== 'list');
+        document.getElementById('newBtn').classList.toggle('bg-brand-primary', view === 'form');
+        document.getElementById('newBtn').classList.toggle('text-white', view === 'form');
+        document.getElementById('listBtn').classList.toggle('bg-brand-primary', view === 'list');
+        document.getElementById('listBtn').classList.toggle('text-white', view === 'list');
+      }
+
+      function renderAssets() {
+        const list = document.getElementById('assetList');
+        if (!assetDrafts.length) { list.innerHTML = '<p class="text-xs text-slate-500 dark:text-dark-subtext">Sin archivos cargados.</p>'; return; }
+        list.innerHTML = assetDrafts.map(asset => `
+          <div class="border border-slate-200 dark:border-dark-border rounded-lg p-3 flex items-center gap-3" data-asset-id="${asset.id}">
+            <div class="w-12 h-12 bg-slate-100 dark:bg-white/10 rounded overflow-hidden flex items-center justify-center">
+              ${asset.preview ? `<img src="${asset.preview}" alt="${asset.name}" class="w-full h-full object-cover" />` : '<span class="text-xs">PDF/Video</span>'}
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-brand-dark dark:text-white line-clamp-1">${asset.name}</p>
+              <p class="text-[11px] text-slate-500 dark:text-dark-subtext">${asset.path}</p>
+            </div>
+            <button class="text-xs text-red-500 remove-asset">Quitar</button>
+          </div>
+        `).join('');
+      }
+
+      function renderSections() {
+        const list = document.getElementById('sectionList');
+        if (!sectionDrafts.length) { list.innerHTML = '<p class="text-sm text-slate-500 dark:text-dark-subtext">Sin secciones. Usa "Añadir sección" para agregar texto, brief, flujogramas, anexos o media.</p>'; return; }
+        list.innerHTML = sectionDrafts.map(sec => `
+          <div class="border border-slate-200 dark:border-dark-border rounded-lg p-4 space-y-3" data-section-id="${sec.id}">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-center">
+              <input class="section-title md:col-span-2 p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border" placeholder="Título de sección" value="${sec.title || ''}" />
+              <select class="section-type p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border">
+                <option value="TEXT" ${sec.type==='TEXT'?'selected':''}>Texto</option>
+                <option value="BRIEF" ${sec.type==='BRIEF'?'selected':''}>Brief</option>
+                <option value="FLOWCHART" ${sec.type==='FLOWCHART'?'selected':''}>Flowchart</option>
+                <option value="MEDIA" ${sec.type==='MEDIA'?'selected':''}>Media (img/video/pdf)</option>
+                <option value="ANEXO" ${sec.type==='ANEXO'?'selected':''}>Anexo</option>
+              </select>
+              <button class="remove-section text-red-500 text-sm">Eliminar</button>
+            </div>
+            <textarea class="section-body w-full p-3 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border text-sm" rows="3" placeholder="Contenido, o pares clave: valor para Brief/Flowchart">${sec.body || ''}</textarea>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
+              <input class="section-extra-evento p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border" placeholder="Evento/actividad" value="${sec.evento || ''}">
+              <input class="section-extra-lugar p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border" placeholder="Lugar / URL" value="${sec.lugar || ''}">
+              <input class="section-extra-fecha p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border" placeholder="Fecha" value="${sec.fecha || ''}">
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <input class="section-media-url p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border" placeholder="URL media / archivo" value="${sec.mediaUrl || ''}">
+              <select class="section-media-type p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border">
+                <option value="imagen" ${sec.mediaType==='imagen'?'selected':''}>Imagen</option>
+                <option value="video" ${sec.mediaType==='video'?'selected':''}>Video</option>
+                <option value="pdf" ${sec.mediaType==='pdf'?'selected':''}>PDF</option>
+              </select>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function resetForm(project) {
+        document.getElementById('titleInput').value = project?.title || '';
+        document.getElementById('subtitleInput').value = project?.subtitle || '';
+        document.getElementById('categoryInput').value = project?.category || CATEGORY_OPTIONS[0];
+        document.getElementById('statusInput').value = project?.tags?.[1] || 'Real';
+        document.getElementById('dateInput').value = project?.date ? project.date.split('T')[0] || project.date : '';
+        document.getElementById('thumbInput').value = project?.thumbnailUrl || '';
+        document.getElementById('notesInput').value = project?.sections?.find(s => s.id === 'note')?.content || project?.subtitle || '';
+        document.getElementById('draftInput').checked = project?.draft || false;
+        document.getElementById('ideaInput').checked = normalizeCategory(project?.category) === 'fraguas' || project?.isIdeaForge;
+        document.getElementById('scheduleInput').value = project?.scheduledAt ? new Date(project.scheduledAt).toISOString().slice(0,16) : '';
+        sectionDrafts = (project?.sections || []).map(sec => ({
+          ...sec,
+          body: typeof sec.content === 'string' ? sec.content : Object.entries(sec.content || {}).map(([k,v]) => `${k}: ${v}`).join('\n'),
+          mediaUrl: sec.content && typeof sec.content === 'string' ? sec.content : sec.content?.url || '',
+          mediaType: sec.mediaType,
+          evento: sec.content?.evento || sec.content?.Evento,
+          lugar: sec.content?.lugar || sec.content?.Lugar,
+          fecha: sec.content?.fecha || sec.content?.Fecha,
+        }));
+        assetDrafts = project?.assets || [];
+        renderSections();
+        renderAssets();
+      }
+
+      function parseSections() {
+        return sectionDrafts.map(sec => {
+          const base = { id: sec.id || Date.now().toString(), title: sec.title || 'Sección', type: sec.type || 'TEXT' };
+          if (sec.type === 'BRIEF' || sec.type === 'FLOWCHART') {
+            const map = {};
+            (sec.body || '').split('\n').forEach(line => {
+              const [k,...rest] = line.split(':');
+              if (k && rest.length) map[k.trim()] = rest.join(':').trim();
+            });
+            return { ...base, content: map };
+          }
+          if (sec.type === 'ANEXO') {
+            return { ...base, content: { Evento: sec.evento || 'Por definir', Lugar: sec.lugar || '—', Fecha: sec.fecha || '—', Enlace: sec.mediaUrl || '' } };
+          }
+          if (sec.type === 'MEDIA') {
+            return { ...base, content: sec.mediaUrl || sec.body, mediaType: sec.mediaType || 'imagen' };
+          }
+          return { ...base, content: sec.body || '' };
+        });
+      }
+
+      function renderProjectList() {
+        const list = document.getElementById('projectList');
+        const sorted = [...projects].sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+        list.innerHTML = sorted.map(item => {
+          const status = item.draft ? 'Borrador' : (item.scheduledAt ? 'Programado' : 'Publicado');
+          return `<div class="border border-slate-200 dark:border-dark-border rounded-lg p-4 flex flex-col md:flex-row md:items-center gap-3" data-project-id="${item.id}">
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-brand-dark dark:text-white">${item.title}</p>
+              <p class="text-xs text-slate-500 dark:text-dark-subtext">${formatCategory(item.category)} · ${status} · editado ${new Date(item.updatedAt || Date.now()).toLocaleString('es-ES')}</p>
+            </div>
+            <div class="flex gap-2 flex-wrap text-xs">
+              <button class="px-3 py-1 rounded bg-brand-primary text-white edit-project">Editar</button>
+              <button class="px-3 py-1 rounded bg-slate-100 dark:bg-white/10 toggle-draft">${item.draft ? 'Publicar' : 'Borrador'}</button>
+              <button class="px-3 py-1 rounded bg-slate-100 dark:bg-white/10 schedule-project">Programar</button>
+              <button class="px-3 py-1 rounded bg-red-500 text-white delete-project">Eliminar</button>
+            </div>
+          </div>`;
+        }).join('');
+      }
+
+      window.renderProjectList = renderProjectList;
+
       document.getElementById('unlockBtn').addEventListener('click', () => {
         const pwd = document.getElementById('passwordInput').value;
         if (pwd === PASSWORD) {
           document.getElementById('authError').classList.add('hidden');
           document.getElementById('lockCard').classList.add('hidden');
-          document.getElementById('formCard').classList.remove('hidden');
+          document.getElementById('cpanelContent').classList.remove('hidden');
+          switchView('form');
+          resetForm();
         } else {
           document.getElementById('authError').classList.remove('hidden');
         }
       });
+
       document.getElementById('lockBtn').addEventListener('click', () => {
-        document.getElementById('formCard').classList.add('hidden');
-        document.getElementById('lockCard').classList.remove('hidden');
+        lockPanel();
       });
+
+      document.getElementById('newBtn').addEventListener('click', () => switchView('form'));
+      document.getElementById('listBtn').addEventListener('click', () => { switchView('list'); renderProjectList(); });
+
+      document.getElementById('addSectionBtn').addEventListener('click', () => {
+        sectionDrafts.push({ id: Date.now().toString(), type: 'TEXT', title: '', body: '' });
+        renderSections();
+      });
+
+      document.getElementById('sectionList').addEventListener('input', (e) => {
+        const wrapper = e.target.closest('[data-section-id]');
+        if (!wrapper) return;
+        const sec = sectionDrafts.find(s => s.id === wrapper.dataset.sectionId);
+        if (!sec) return;
+        if (e.target.classList.contains('section-title')) sec.title = e.target.value;
+        if (e.target.classList.contains('section-type')) sec.type = e.target.value;
+        if (e.target.classList.contains('section-body')) sec.body = e.target.value;
+        if (e.target.classList.contains('section-extra-evento')) sec.evento = e.target.value;
+        if (e.target.classList.contains('section-extra-lugar')) sec.lugar = e.target.value;
+        if (e.target.classList.contains('section-extra-fecha')) sec.fecha = e.target.value;
+        if (e.target.classList.contains('section-media-url')) sec.mediaUrl = e.target.value;
+        if (e.target.classList.contains('section-media-type')) sec.mediaType = e.target.value;
+      });
+
+      document.getElementById('sectionList').addEventListener('click', (e) => {
+        if (e.target.classList.contains('remove-section')) {
+          const wrapper = e.target.closest('[data-section-id]');
+          sectionDrafts = sectionDrafts.filter(s => s.id !== wrapper.dataset.sectionId);
+          renderSections();
+        }
+      });
+
+      document.getElementById('fileInput').addEventListener('change', (e) => {
+        const files = Array.from(e.target.files || []);
+        files.forEach(file => {
+          const id = `${Date.now()}-${file.name}`;
+          const path = `${uploadDir}/${file.name}`;
+          const asset = { id, name: file.name, path, mediaType: file.type, size: file.size };
+          if (file.type.includes('image')) {
+            const reader = new FileReader();
+            reader.onload = () => {
+              asset.preview = reader.result;
+              renderAssets();
+            };
+            reader.readAsDataURL(file);
+          }
+          if (file.type.includes('video')) { asset.mediaType = 'video'; }
+          if (file.type.includes('pdf')) { asset.mediaType = 'pdf'; }
+          assetDrafts.push(asset);
+        });
+        renderAssets();
+      });
+
+      document.getElementById('assetList').addEventListener('click', (e) => {
+        if (e.target.classList.contains('remove-asset')) {
+          const card = e.target.closest('[data-asset-id]');
+          assetDrafts = assetDrafts.filter(a => a.id !== card.dataset.assetId);
+          renderAssets();
+        }
+      });
+
       document.getElementById('publishBtn').addEventListener('click', () => {
         const title = document.getElementById('titleInput').value.trim();
         const subtitle = document.getElementById('subtitleInput').value.trim();
@@ -630,26 +1009,89 @@
         const date = document.getElementById('dateInput').value;
         const thumb = document.getElementById('thumbInput').value || 'https://via.placeholder.com/600x400';
         const notes = document.getElementById('notesInput').value;
-        const idea = document.getElementById('ideaInput').checked;
+        const idea = document.getElementById('ideaInput').checked || category === 'fraguas';
+        const draft = document.getElementById('draftInput').checked;
+        const scheduledAt = document.getElementById('scheduleInput').value ? new Date(document.getElementById('scheduleInput').value).getTime() : null;
         const displayDate = date ? new Date(date).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' }) : 'sin fecha';
+        const compiledSections = parseSections();
+        if (notes && !compiledSections.some(s => s.id === 'note')) {
+          compiledSections.unshift({ id: 'note', title: 'Notas', type: 'TEXT', content: notes });
+        }
         const newProject = {
-          id: Date.now().toString(),
+          id: editingId || Date.now().toString(),
           title,
           subtitle,
-          category,
+          category: normalizeCategory(category),
           tags: [displayDate, status],
           thumbnailUrl: thumb,
-          date: displayDate,
-          sections: notes ? [{ id: 'note', title: 'Notas', type: 'TEXT', content: notes }] : [],
-          isIdeaForge: idea
+          date: date || new Date().toISOString().slice(0,10),
+          sections: compiledSections,
+          isIdeaForge: idea,
+          draft,
+          updatedAt: Date.now(),
+          scheduledAt,
+          assets: assetDrafts
         };
-        projects = [newProject, ...projects];
+        projects = editingId ? projects.map(p => p.id === editingId ? newProject : p) : [newProject, ...projects];
+        saveProjects();
         renderPortfolio();
-        currentView = idea ? 'PORTFOLIO' : 'PORTFOLIO';
-        updateNav();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        alert('Proyecto agregado al portafolio.');
+        renderProjectList();
+        switchView('list');
+        editingId = null;
+        alert('Guardado.');
       });
+
+      document.getElementById('projectList').addEventListener('click', (e) => {
+        const card = e.target.closest('[data-project-id]');
+        if (!card) return;
+        const project = projects.find(p => p.id === card.dataset.projectId);
+        if (e.target.classList.contains('edit-project')) {
+          editingId = project.id;
+          resetForm(project);
+          switchView('form');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        if (e.target.classList.contains('delete-project')) {
+          if (confirm('¿Eliminar este proyecto?')) {
+            projects = projects.filter(p => p.id !== project.id);
+            saveProjects();
+            renderPortfolio();
+            renderProjectList();
+          }
+        }
+        if (e.target.classList.contains('toggle-draft')) {
+          project.draft = !project.draft;
+          project.scheduledAt = null;
+          project.updatedAt = Date.now();
+          saveProjects();
+          renderPortfolio();
+          renderProjectList();
+        }
+        if (e.target.classList.contains('schedule-project')) {
+          const when = prompt('Fecha y hora (YYYY-MM-DD hh:mm):');
+          if (when) {
+            const ts = new Date(when).getTime();
+            if (!isNaN(ts)) {
+              project.scheduledAt = ts;
+              project.draft = true;
+              project.updatedAt = Date.now();
+              saveProjects();
+              renderProjectList();
+              processSchedules();
+            }
+          }
+        }
+      });
+
+      function resetSectionsOnLoad() {
+        sectionDrafts = [];
+        assetDrafts = [];
+        renderSections();
+        renderAssets();
+      }
+
+      resetSectionsOnLoad();
+      renderProjectList();
     }
 
     renderProfile();
