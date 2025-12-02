@@ -94,6 +94,7 @@
       <div class="flex items-center gap-2">
         <button data-view="HOME" class="nav-btn px-3 md:px-4 h-8 md:h-9 rounded-full font-semibold text-xs md:text-sm leading-5 transition-all duration-300">Inicio</button>
         <button data-view="PORTFOLIO" class="nav-btn px-3 md:px-4 h-8 md:h-9 rounded-full font-semibold text-xs md:text-sm leading-5 transition-all duration-300">Portafolio</button>
+        <button data-view="CV" class="nav-btn px-3 md:px-4 h-8 md:h-9 rounded-full font-semibold text-xs md:text-sm leading-5 transition-all duration-300">CV</button>
         <button data-view="CHATBOT" class="nav-btn px-3 h-8 md:h-9 rounded-full font-semibold text-xs md:text-sm leading-5 transition-colors text-brand-accent">ChatBot</button>
         <button data-view="CPANEL" class="nav-btn hidden sm:inline px-2 text-[10px] font-mono opacity-70 hover:opacity-100" title="Panel de Control">CP</button>
         <button id="darkToggle" class="ml-1 p-1.5 rounded-full text-brand-dark dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors" title="Modo oscuro">
@@ -107,6 +108,7 @@
   <main class="pt-24 md:pt-[110px]">
     <section id="homeSection" class="min-h-screen px-4 md:px-6 max-w-[1080px] mx-auto pb-16"></section>
     <section id="portfolioSection" class="hidden min-h-screen px-4 md:px-6 max-w-[1200px] mx-auto pb-16"></section>
+    <section id="cvSection" class="hidden min-h-screen px-4 md:px-6 max-w-[1100px] mx-auto pb-16"></section>
     <section id="chatSection" class="hidden min-h-screen px-4 md:px-6 max-w-[1000px] mx-auto pb-16 flex items-center justify-center text-center">
       <div class="bg-white dark:bg-dark-card border border-[#b6d0ff] dark:border-dark-border rounded-2xl p-8 shadow-neon max-w-xl">
         <div class="text-5xl mb-4">🤖</div>
@@ -437,6 +439,39 @@
       return projects.filter(p => !p.draft && (!p.scheduledAt || p.scheduledAt <= now));
     }
 
+    const CHAT_LOG_KEY = 'jjga-chat-logs';
+    let chatLogs = JSON.parse(localStorage.getItem(CHAT_LOG_KEY) || '[]');
+
+    const knowledgeBase = [
+      { key: 'publicidad', match: ['publicidad', 'marketing'], response: 'La publicidad combina estrategia, creatividad y mediciones claras. Yo lo traduzco en planes de medios con cálculo de CPM/CPPR, optimización creativa y delivery en multiplataforma.' },
+      { key: 'cmd', match: ['cmd', 'community manager'], response: 'Community Management implica escucha activa, calendario editorial y pruebas A/B constantes. Yo gestiono comunidades con foco en reputación y performance.' },
+      { key: 'github', match: ['github', 'git hub'], response: 'GitHub es la base de control de versiones colaborativo. Lo uso para ordenar entregables, versiones de piezas y coordinar iteraciones con equipos técnicos y creativos.' },
+      { key: 'planeamiento', match: ['planificacion', 'planeamiento', 'medios'], response: 'El planeamiento de medios es asignar presupuesto en los canales correctos según objetivo y audiencia. Mis planes contemplan TV, radio, impresos, vallas y redes con comisiones y métricas transparentes.' },
+      { key: 'ai', match: ['ai', 'ia', 'inteligencia artificial'], response: 'La IA me ayuda a acelerar investigación, ideación y análisis de sentimiento. La combino con criterio creativo para propuestas medibles y accionables.' }
+    ];
+
+    function saveChatLogs() {
+      localStorage.setItem(CHAT_LOG_KEY, JSON.stringify(chatLogs.slice(-120)));
+    }
+
+    function recordQuestion(question = '') {
+      if (!question.trim()) return;
+      chatLogs.push({ q: question.trim(), at: Date.now() });
+      saveChatLogs();
+    }
+
+    function popularQuestions(limit = 4) {
+      const counts = chatLogs.reduce((acc, item) => {
+        const key = item.q.toLowerCase();
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+      }, {});
+      return Object.entries(counts)
+        .sort((a,b) => b[1]-a[1])
+        .slice(0, limit)
+        .map(([q]) => q);
+    }
+
     function processSchedules() {
       const now = Date.now();
       let changed = false;
@@ -461,12 +496,22 @@
     const sections = {
       HOME: document.getElementById('homeSection'),
       PORTFOLIO: document.getElementById('portfolioSection'),
+      CV: document.getElementById('cvSection'),
       CHATBOT: document.getElementById('chatSection'),
       CPANEL: document.getElementById('cpanelSection')
     };
 
     function updateNav() {
-      document.getElementById('pageTitle').textContent = currentView === 'HOME' ? 'Buyer Persona' : currentView === 'PORTFOLIO' ? 'Portafolio' : currentView === 'CHATBOT' ? 'ChatBot - Jactsu' : 'Panel de Control';
+      document.getElementById('pageTitle').textContent =
+        currentView === 'HOME'
+          ? 'Buyer Persona'
+          : currentView === 'PORTFOLIO'
+            ? 'Portafolio'
+            : currentView === 'CV'
+              ? 'CV interactivo'
+              : currentView === 'CHATBOT'
+                ? 'ChatBot - Jactsu'
+                : 'Panel de Control';
       navButtons.forEach(btn => {
         const target = btn.dataset.view;
         btn.classList.remove('bg-brand-primary','text-white','shadow-md','underline','opacity-100');
@@ -705,6 +750,21 @@
           <h1 class="text-4xl md:text-6xl font-bold text-brand-dark dark:text-white mb-6 leading-tight">Todas las ideas = <span class="text-brand-primary">Pensar, Crear & Transformar</span></h1>
           <p class="text-slate-600 dark:text-dark-subtext max-w-2xl mx-auto text-lg">Explora las diferentes facetas de mi trabajo: Estrategia, Diseño, Websites o Activaciones.</p>
         </div>
+        <div class="mb-10 bg-gradient-to-r from-blue-50 to-white dark:from-dark-card dark:to-black border border-[#b6d0ff]/60 dark:border-dark-border rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 shadow-sm">
+          <div class="flex-1">
+            <p class="text-xs uppercase tracking-[0.2em] text-brand-primary font-bold mb-2">CV interactivo</p>
+            <h2 class="text-2xl md:text-3xl font-bold text-brand-dark dark:text-white mb-3">Conoce a Jamileth en modo inmersivo</h2>
+            <p class="text-slate-600 dark:text-dark-subtext mb-4">Un recorrido guiado por proyectos, logros y habilidades con una ventana del chatbot para responder sobre mi experiencia.</p>
+            <div class="flex flex-wrap gap-3">
+              <button id="cvBannerBtn" class="px-4 py-2 rounded-full bg-brand-primary text-white font-semibold shadow">Ver CV</button>
+              <button id="cvChatPeek" class="px-4 py-2 rounded-full border border-brand-primary text-brand-primary font-semibold">Preguntar al asistente</button>
+            </div>
+          </div>
+          <div class="w-full md:w-64 bg-white dark:bg-dark-bg border border-[#b6d0ff]/50 dark:border-dark-border rounded-2xl p-4 shadow-neon">
+            <p class="text-sm font-semibold text-brand-dark dark:text-white mb-2">Recomendaciones rápidas</p>
+            <ul id="cvRecommendations" class="space-y-2 text-sm text-slate-600 dark:text-dark-subtext"></ul>
+          </div>
+        </div>
         <div class="flex justify-center mb-12">
           <div class="bg-white dark:bg-dark-card border border-[#b6d0ff] dark:border-dark-border rounded-full p-1.5 flex flex-wrap justify-center gap-1 shadow-sm" id="filterButtons"></div>
         </div>
@@ -727,6 +787,22 @@
           btn.classList.add('bg-brand-primary','text-white','shadow-md');
         }
       });
+
+      const recList = document.getElementById('cvRecommendations');
+      if (recList) {
+        const recommendations = visibleProjects().slice(0,3).map(p => `
+          <li class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-brand-primary"></span>
+            <span>${p.title}</span>
+          </li>`);
+        recommendations.push('<li class="text-xs text-slate-500 dark:text-dark-subtext">+ Sugerencias automáticas del chatbot</li>');
+        recList.innerHTML = recommendations.join('');
+      }
+
+      const cvBtn = document.getElementById('cvBannerBtn');
+      const cvChatBtn = document.getElementById('cvChatPeek');
+      if (cvBtn) cvBtn.addEventListener('click', () => { currentView = 'CV'; updateNav(); renderCV(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+      if (cvChatBtn) cvChatBtn.addEventListener('click', () => { currentView = 'CHATBOT'; updateNav(); renderChatHub(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
 
       const grid = document.getElementById('projectGrid');
       function paintGrid(active='Todos') {
@@ -768,6 +844,145 @@
           openModal(project);
         });
       }
+    }
+
+    function buildChatResponse(question) {
+      const lower = question.toLowerCase();
+      const match = knowledgeBase.find(item => item.match.some(key => lower.includes(key)));
+      const intro = match ? match.response : 'Puedo ayudarte con estrategia, creatividad y tecnología aplicada a marketing.';
+      const recs = visibleProjects().slice(0, 3).map(p => `«${p.title}» (${formatCategory(p.category)})`).join(', ');
+      const callToAction = recs ? ` Revisa ${recs} en el portafolio.` : '';
+      const angle = ' ¿Te cuento cómo puedo aplicarlo a tu caso o prefieres una recomendación puntual?';
+      const personaSell = ' Soy Jamileth, estratega publicitaria & AI Hybrid: convierto las preguntas en rutas accionables.';
+      return `${intro}${callToAction}${personaSell}${angle}`;
+    }
+
+    function renderChatExperience({ containerId, compact = false } = {}) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      const popular = popularQuestions();
+      const quickPrompts = popular.length ? popular : ['¿Qué servicios ofreces?', 'Recomiéndame un proyecto', '¿Qué es planeamiento de medios?', 'Quiero mejorar mi campaña digital'];
+      container.innerHTML = `
+        <div class="${compact ? 'bg-white dark:bg-dark-card border border-[#b6d0ff]/50 dark:border-dark-border rounded-2xl p-4 space-y-4' : 'grid md:grid-cols-3 gap-6 w-full'}">
+          ${compact ? '' : `<div class="md:col-span-1 bg-gradient-to-br from-brand-primary to-brand-secondary text-white rounded-2xl p-6 space-y-3 shadow-neon">
+              <p class="text-sm uppercase tracking-[0.2em] font-semibold">Chat asistente</p>
+              <h3 class="text-2xl font-bold leading-tight">Pregúntame sobre estrategia, proyectos o mi experiencia</h3>
+              <ul class="text-sm space-y-2" id="chatTopics">
+                ${quickPrompts.map(q => `<li class="flex items-start gap-2"><span class="mt-1 w-2 h-2 rounded-full bg-white/70"></span><span>${q}</span></li>`).join('')}
+              </ul>
+              <p class="text-xs text-white/80">Aprende del portafolio y lleva insights a tu marca.</p>
+            </div>`}
+          <div class="${compact ? '' : 'md:col-span-2'} bg-white dark:bg-dark-card border border-[#b6d0ff]/50 dark:border-dark-border rounded-2xl p-4 md:p-6 flex flex-col gap-4 shadow-sm" aria-live="polite">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs uppercase tracking-[0.2em] text-brand-primary font-bold">Jamileth · AI Hybrid</p>
+                <p class="text-sm text-slate-600 dark:text-dark-subtext">El asistente guarda las preguntas frecuentes para mejorar sugerencias.</p>
+              </div>
+              <div class="hidden md:flex items-center gap-2 text-xs text-slate-500 dark:text-dark-subtext">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> En línea
+              </div>
+            </div>
+            <div id="chatMessages-${containerId}" class="bg-slate-50 dark:bg-black/40 rounded-xl p-3 h-64 overflow-y-auto flex flex-col gap-3 text-sm"></div>
+            <div class="flex flex-wrap gap-2" id="chatSuggestions-${containerId}">
+              ${quickPrompts.map(p => `<button class="chat-suggestion px-3 py-1 rounded-full bg-slate-100 dark:bg-white/10 text-xs" data-question="${p}">${p}</button>`).join('')}
+            </div>
+            <div class="flex gap-2">
+              <input id="chatInput-${containerId}" class="flex-1 p-3 rounded-xl bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border text-sm" placeholder="Escribe tu pregunta" />
+              <button id="chatSend-${containerId}" class="px-4 py-2 bg-brand-primary text-white rounded-xl font-semibold">Enviar</button>
+            </div>
+          </div>
+        </div>`;
+
+      const msgBox = document.getElementById(`chatMessages-${containerId}`);
+      const input = document.getElementById(`chatInput-${containerId}`);
+      const send = document.getElementById(`chatSend-${containerId}`);
+      function addMessage(role, text) {
+        const bubble = document.createElement('div');
+        bubble.className = `px-3 py-2 rounded-2xl max-w-[95%] ${role === 'user' ? 'self-end bg-brand-primary text-white' : 'self-start bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-white'}`;
+        bubble.textContent = text;
+        msgBox.appendChild(bubble);
+        msgBox.scrollTop = msgBox.scrollHeight;
+      }
+      function handleSend(text) {
+        const question = text || input.value.trim();
+        if (!question) return;
+        addMessage('user', question);
+        recordQuestion(question);
+        const reply = buildChatResponse(question);
+        addMessage('bot', reply);
+        input.value = '';
+      }
+      send.addEventListener('click', () => handleSend());
+      input.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') handleSend(); });
+      container.querySelectorAll('.chat-suggestion').forEach(btn => btn.addEventListener('click', () => handleSend(btn.dataset.question)));
+
+      addMessage('bot', 'Hola, soy Jamileth. Pregúntame sobre mis proyectos, planeación de medios o cómo puedo sumar a tu marca.');
+    }
+
+    const cvHighlights = [
+      { title: 'Estrategia & Medios', detail: 'Planes multiformato con comisiones transparentes (TV, Radio, Impreso, Valla, Redes).' },
+      { title: 'Creatividad aplicada', detail: 'Conceptos que combinan storytelling con data y experimentación.' },
+      { title: 'Gestión & AI', detail: 'Procesos asistidos por IA para research, QA y optimización continua.' }
+    ];
+
+    function renderCV() {
+      const container = document.getElementById('cvSection');
+      if (!container) return;
+      const timeline = [
+        { year: '2024', text: 'Planes de medios integrados con cálculo de CPM/CPPR y optimización creativa.' },
+        { year: '2023', text: 'Proyectos de websites y branding con enfoque en conversión.' },
+        { year: '2022', text: 'Gestión de comunidades y campañas de contenidos.' }
+      ];
+      container.innerHTML = `
+        <div class="bg-white dark:bg-dark-card border border-[#b6d0ff] dark:border-dark-border rounded-3xl p-6 md:p-10 shadow-sm space-y-8">
+          <div class="flex flex-col md:flex-row gap-6 items-start md:items-center">
+            <div class="flex-1">
+              <p class="text-xs uppercase tracking-[0.2em] text-brand-primary font-bold mb-2">Currículum · Banner web</p>
+              <h1 class="text-3xl md:text-4xl font-bold text-brand-dark dark:text-white mb-3">CV interactivo de Jamileth</h1>
+              <p class="text-slate-600 dark:text-dark-subtext">Explora logros, habilidades y ejemplos de portafolio con apoyo del chatbot para resolver dudas y conectar con oportunidades.</p>
+              <div class="flex flex-wrap gap-3 mt-4">
+                ${cvHighlights.map(item => `<span class="px-3 py-2 rounded-full bg-slate-100 dark:bg-white/5 text-sm">${item.title}</span>`).join('')}
+              </div>
+            </div>
+            <button id="backToPortfolio" class="px-4 py-2 rounded-full border border-brand-primary text-brand-primary font-semibold">Volver a portafolio</button>
+          </div>
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+              <h3 class="text-xl font-bold text-brand-dark dark:text-white">Trayectoria</h3>
+              <div class="space-y-3">
+                ${timeline.map(item => `<div class="flex gap-3 items-start"><span class="text-sm font-bold text-brand-primary">${item.year}</span><p class="text-slate-600 dark:text-dark-subtext">${item.text}</p></div>`).join('')}
+              </div>
+            </div>
+            <div class="space-y-4">
+              <h3 class="text-xl font-bold text-brand-dark dark:text-white">Habilidades clave</h3>
+              <ul class="space-y-2">
+                ${competencies.map(skill => `<li class="flex items-center justify-between bg-slate-50 dark:bg-white/5 rounded-lg px-3 py-2"><span>${skill.name}</span><span class="text-brand-primary font-semibold">${skill.percentage}%</span></li>`).join('')}
+              </ul>
+            </div>
+          </div>
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="md:col-span-2 space-y-3">
+              <h3 class="text-xl font-bold text-brand-dark dark:text-white">Proyectos sugeridos</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                ${visibleProjects().slice(0,4).map(p => `<div class="p-3 rounded-xl border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-white/5"><p class="text-sm font-semibold text-brand-dark dark:text-white">${p.title}</p><p class="text-xs text-slate-500 dark:text-dark-subtext">${formatCategory(p.category)}</p></div>`).join('') || '<p class="text-sm text-slate-500 dark:text-dark-subtext">Agrega proyectos para verlos aquí.</p>'}
+              </div>
+            </div>
+            <div class="space-y-3">
+              <h3 class="text-xl font-bold text-brand-dark dark:text-white">Mini chatbot</h3>
+              <div id="cvChatMount"></div>
+            </div>
+          </div>
+        </div>`;
+
+      document.getElementById('backToPortfolio')?.addEventListener('click', () => { currentView = 'PORTFOLIO'; updateNav(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+      renderChatExperience({ containerId: 'cvChatMount', compact: true });
+    }
+
+    function renderChatHub() {
+      const container = document.getElementById('chatSection');
+      if (!container) return;
+      container.innerHTML = '<div class="w-full"> <div id="chatMain"></div></div>';
+      renderChatExperience({ containerId: 'chatMain' });
     }
 
     function openModal(project) {
@@ -1006,18 +1221,30 @@
       function renderAssets() {
         const list = document.getElementById('assetList');
         if (!assetDrafts.length) { list.innerHTML = '<p class="text-xs text-slate-500 dark:text-dark-subtext">Sin archivos cargados.</p>'; return; }
-        list.innerHTML = assetDrafts.map(asset => `
-          <div class="border border-slate-200 dark:border-dark-border rounded-lg p-3 flex items-center gap-3" data-asset-id="${asset.id}">
-            <div class="w-12 h-12 bg-slate-100 dark:bg-white/10 rounded overflow-hidden flex items-center justify-center">
-              ${asset.preview ? `<img src="${asset.preview}" alt="${asset.name}" class="w-full h-full object-cover" />` : '<span class="text-xs">PDF/Video</span>'}
-            </div>
-            <div class="flex-1">
-              <p class="text-sm font-semibold text-brand-dark dark:text-white line-clamp-1">${asset.name}</p>
-              <p class="text-[11px] text-slate-500 dark:text-dark-subtext">${asset.path}</p>
-            </div>
-            <button class="text-xs text-red-500 remove-asset">Quitar</button>
-          </div>
-        `).join('');
+        const thumbValue = document.getElementById('thumbInput').value;
+        list.innerHTML = assetDrafts.map(asset => {
+          const preview = asset.preview || '';
+          const isThumb = thumbValue && (thumbValue === preview || thumbValue === asset.path);
+          const downloadHref = preview || asset.path;
+          const exportButton = downloadHref
+            ? `<a class="text-xs text-brand-secondary export-asset" href="${downloadHref}" download="${asset.name}">Exportar</a>`
+            : '<span class="text-xs text-slate-400">Exportar</span>';
+          return `
+            <div class="border border-slate-200 dark:border-dark-border rounded-lg p-3 flex items-center gap-3" data-asset-id="${asset.id}">
+              <div class="w-12 h-12 bg-slate-100 dark:bg-white/10 rounded overflow-hidden flex items-center justify-center">
+                ${preview ? `<img src="${preview}" alt="${asset.name}" class="w-full h-full object-cover" />` : '<span class="text-[10px] text-slate-500 dark:text-dark-subtext">${asset.mediaType === 'pdf' ? 'PDF' : 'Media'}</span>'}
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-brand-dark dark:text-white line-clamp-1">${asset.name} ${isThumb ? '• Miniatura' : ''}</p>
+                <p class="text-[11px] text-slate-500 dark:text-dark-subtext">${asset.path}</p>
+              </div>
+              <div class="flex flex-col gap-1 text-right">
+                <button class="text-xs text-brand-primary set-thumb">Usar miniatura</button>
+                ${exportButton}
+                <button class="text-xs text-red-500 remove-asset">Quitar</button>
+              </div>
+            </div>`;
+        }).join('');
       }
 
       function renderSections() {
@@ -1323,18 +1550,22 @@
           const id = `${Date.now()}-${file.name}`;
           const path = `${uploadDir}/${file.name}`;
           const asset = { id, name: file.name, path, mediaType: file.type, size: file.size };
-          if (file.type.includes('image')) {
-            const reader = new FileReader();
-            reader.onload = () => {
-              asset.preview = reader.result;
-              renderAssets();
-            };
-            reader.readAsDataURL(file);
-          }
+          if (file.type.includes('image')) { asset.mediaType = 'image'; }
           if (file.type.includes('video')) { asset.mediaType = 'video'; }
           if (file.type.includes('pdf')) { asset.mediaType = 'pdf'; }
+          const reader = new FileReader();
+          reader.onload = () => {
+            asset.preview = reader.result;
+            renderAssets();
+          };
+          reader.readAsDataURL(file);
           assetDrafts.push(asset);
         });
+        const thumbInput = document.getElementById('thumbInput');
+        if (!thumbInput.value) {
+          const firstImage = assetDrafts.find(a => a.mediaType === 'image');
+          if (firstImage) thumbInput.value = firstImage.preview || firstImage.path;
+        }
         renderAssets();
       });
 
@@ -1343,6 +1574,14 @@
           const card = e.target.closest('[data-asset-id]');
           assetDrafts = assetDrafts.filter(a => a.id !== card.dataset.assetId);
           renderAssets();
+        }
+        if (e.target.classList.contains('set-thumb')) {
+          const card = e.target.closest('[data-asset-id]');
+          const asset = assetDrafts.find(a => a.id === card.dataset.assetId);
+          if (asset) {
+            document.getElementById('thumbInput').value = asset.preview || asset.path;
+            renderAssets();
+          }
         }
       });
 
@@ -1443,6 +1682,8 @@
 
     renderProfile();
     renderPortfolio();
+    renderCV();
+    renderChatHub();
     renderCPanel();
     updateNav();
   </script>
