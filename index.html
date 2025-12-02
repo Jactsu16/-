@@ -167,6 +167,24 @@
     const STORAGE_KEY = 'jjga-portfolio-v2';
     const CATEGORY_OPTIONS = ['estrategia', 'diseño', 'website', 'varios', 'fraguas'];
     const uploadDir = 'uploads';
+    const BRIEF_FIELDS = [
+      { key: 'antecedentes', label: 'Antecedentes' },
+      { key: 'historiaProducto', label: 'Historia del producto' },
+      { key: 'caracteristicas', label: 'Características' },
+      { key: 'beneficios', label: 'Beneficios' },
+      { key: 'distribucion', label: 'Distribución' },
+      { key: 'target', label: 'Target' },
+      { key: 'posicionamiento', label: 'Posicionamiento' },
+      { key: 'precio', label: 'Precio' },
+      { key: 'medio', label: 'Medio' },
+      { key: 'competencia', label: 'Competencia' }
+    ];
+    const FLOW_FIELDS = [
+      { key: 'objetivo', label: 'Objetivo' },
+      { key: 'estrategiaMedios', label: 'Estrategia de medios' },
+      { key: 'presupuesto', label: 'Presupuesto' },
+      { key: 'medidas', label: 'KPIs / Medidas' }
+    ];
 
     const seedProjects = [
       {
@@ -257,6 +275,23 @@
     let sectionDrafts = [];
     let assetDrafts = [];
     let editingId = null;
+
+    function createEmptySection(type = 'TEXT') {
+      return {
+        id: Date.now().toString(),
+        type,
+        title: '',
+        body: '',
+        brief: BRIEF_FIELDS.reduce((acc, f) => ({ ...acc, [f.key]: '' }), {}),
+        flow: FLOW_FIELDS.reduce((acc, f) => ({ ...acc, [f.key]: '' }), {}),
+        mediaPlan: [{ canal: '', formato: '', ventana: '' }],
+        evento: '',
+        lugar: '',
+        fecha: '',
+        mediaUrl: '',
+        mediaType: 'imagen'
+      };
+    }
 
     function normalizeCategory(cat = '') {
       return cat.toLowerCase();
@@ -658,6 +693,15 @@
         }
         return `<div class="border-t border-slate-100 dark:border-white/10 pt-8 space-y-3"><h3 class="text-xl font-bold text-brand-dark dark:text-brand-primary">${section.title}</h3><img src="${url}" alt="${section.title}" class="rounded-2xl max-h-96 object-cover w-full" /></div>`;
       }
+      if (section.type === 'MEDIA_PLAN') {
+        const rows = (section.content || []).map(row => `
+          <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-xl p-4 shadow-sm">
+            <p class="text-xs font-bold text-brand-secondary dark:text-brand-primary uppercase mb-1">${row.canal || 'Canal'}</p>
+            <p class="text-sm text-brand-dark dark:text-white">${row.formato || 'Formato / Pieza'}</p>
+            <p class="text-[11px] text-slate-500 dark:text-dark-subtext">${row.ventana || 'Ventana / Fecha'}</p>
+          </div>`).join('');
+        return `<div class="border-t border-slate-100 dark:border-white/10 pt-8 space-y-4"><h3 class="text-xl font-bold text-brand-dark dark:text-brand-primary">${section.title}</h3><div class="grid grid-cols-1 md:grid-cols-3 gap-3">${rows}</div></div>`;
+      }
       if (section.type === 'ANEXO') {
         const info = section.content || {};
         return `<div class="border-t border-slate-100 dark:border-white/10 pt-8 space-y-4"><h3 class="text-xl font-bold text-brand-dark dark:text-brand-primary">${section.title}</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4">${Object.entries(info).map(([k,v]) => `<div class="bg-slate-50 dark:bg-white/5 p-4 rounded-xl"><p class="text-xs font-bold uppercase text-brand-secondary dark:text-brand-primary mb-1">${k}</p><p class="text-sm text-slate-700 dark:text-dark-subtext">${v}</p></div>`).join('')}</div></div>`;
@@ -824,25 +868,38 @@
       function renderSections() {
         const list = document.getElementById('sectionList');
         if (!sectionDrafts.length) { list.innerHTML = '<p class="text-sm text-slate-500 dark:text-dark-subtext">Sin secciones. Usa "Añadir sección" para agregar texto, brief, flujogramas, anexos o media.</p>'; return; }
-        list.innerHTML = sectionDrafts.map(sec => `
-          <div class="border border-slate-200 dark:border-dark-border rounded-lg p-4 space-y-3" data-section-id="${sec.id}">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-center">
-              <input class="section-title md:col-span-2 p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border" placeholder="Título de sección" value="${sec.title || ''}" />
-              <select class="section-type p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border">
-                <option value="TEXT" ${sec.type==='TEXT'?'selected':''}>Texto</option>
-                <option value="BRIEF" ${sec.type==='BRIEF'?'selected':''}>Brief</option>
-                <option value="FLOWCHART" ${sec.type==='FLOWCHART'?'selected':''}>Flowchart</option>
-                <option value="MEDIA" ${sec.type==='MEDIA'?'selected':''}>Media (img/video/pdf)</option>
-                <option value="ANEXO" ${sec.type==='ANEXO'?'selected':''}>Anexo</option>
-              </select>
-              <button class="remove-section text-red-500 text-sm">Eliminar</button>
-            </div>
-            <textarea class="section-body w-full p-3 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border text-sm" rows="3" placeholder="Contenido, o pares clave: valor para Brief/Flowchart">${sec.body || ''}</textarea>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
-              <input class="section-extra-evento p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border" placeholder="Evento/actividad" value="${sec.evento || ''}">
-              <input class="section-extra-lugar p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border" placeholder="Lugar / URL" value="${sec.lugar || ''}">
-              <input class="section-extra-fecha p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border" placeholder="Fecha" value="${sec.fecha || ''}">
-            </div>
+        list.innerHTML = sectionDrafts.map(sec => {
+          const briefFields = BRIEF_FIELDS.map(field => `
+            <label class="text-[11px] font-semibold text-slate-500 dark:text-slate-300">${field.label}
+              <textarea data-brief="${field.key}" class="section-brief w-full p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border text-sm" rows="2">${sec.brief?.[field.key] || ''}</textarea>
+            </label>`).join('');
+
+          const flowFields = FLOW_FIELDS.map(field => `
+            <label class="text-[11px] font-semibold text-slate-500 dark:text-slate-300">${field.label}
+              <textarea data-flow="${field.key}" class="section-flow w-full p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border text-sm" rows="2">${sec.flow?.[field.key] || ''}</textarea>
+            </label>`).join('');
+
+          const planRows = (sec.mediaPlan || [{ canal: '', formato: '', ventana: '' }]).map((row, idx) => `
+            <div class="border border-slate-200 dark:border-dark-border rounded-lg p-3 space-y-2" data-plan-row="${idx}">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
+                <input data-plan-field="canal" class="p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border" placeholder="Canal / Medio" value="${row.canal || ''}">
+                <input data-plan-field="formato" class="p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border" placeholder="Formato / Pieza" value="${row.formato || ''}">
+                <input data-plan-field="ventana" class="p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border" placeholder="Ventana / Fechas" value="${row.ventana || ''}">
+              </div>
+              <button class="text-xs text-red-500 remove-plan-row">Quitar cuadro</button>
+            </div>`).join('');
+
+          let specificBlock = `<textarea class="section-body w-full p-3 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border text-sm" rows="3" placeholder="Contenido o notas">${sec.body || ''}</textarea>`;
+
+          if (sec.type === 'BRIEF') specificBlock = `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">${briefFields}</div>`;
+          if (sec.type === 'FLOWCHART') specificBlock = `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">${flowFields}</div>`;
+          if (sec.type === 'MEDIA_PLAN') specificBlock = `
+            <div class="space-y-3">
+              <p class="text-xs text-slate-500 dark:text-dark-subtext">Plan de medios en cuadros por canal, formato y ventana.</p>
+              <div class="space-y-2" data-plan-container>${planRows}</div>
+              <button class="text-xs text-brand-primary add-plan-row">Añadir cuadro</button>
+            </div>`;
+          if (sec.type === 'MEDIA') specificBlock = `
             <div class="grid grid-cols-2 gap-2 text-xs">
               <input class="section-media-url p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border" placeholder="URL media / archivo" value="${sec.mediaUrl || ''}">
               <select class="section-media-type p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border">
@@ -850,9 +907,66 @@
                 <option value="video" ${sec.mediaType==='video'?'selected':''}>Video</option>
                 <option value="pdf" ${sec.mediaType==='pdf'?'selected':''}>PDF</option>
               </select>
+            </div>`;
+          if (sec.type === 'ANEXO') specificBlock = `
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
+              <input class="section-extra-evento p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border" placeholder="Evento/actividad" value="${sec.evento || ''}">
+              <input class="section-extra-lugar p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border" placeholder="Lugar / URL" value="${sec.lugar || ''}">
+              <input class="section-extra-fecha p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border" placeholder="Fecha" value="${sec.fecha || ''}">
             </div>
-          </div>
-        `).join('');
+            <input class="section-media-url p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border text-xs mt-2" placeholder="Enlace o archivo del evento" value="${sec.mediaUrl || ''}">`;
+
+          return `
+          <div class="border border-slate-200 dark:border-dark-border rounded-lg p-4 space-y-3" data-section-id="${sec.id}">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-center">
+              <input class="section-title md:col-span-2 p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border" placeholder="Título de sección" value="${sec.title || ''}" />
+              <select class="section-type p-2 rounded bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border">
+                <option value="TEXT" ${sec.type==='TEXT'?'selected':''}>Texto</option>
+                <option value="BRIEF" ${sec.type==='BRIEF'?'selected':''}>Brief</option>
+                <option value="FLOWCHART" ${sec.type==='FLOWCHART'?'selected':''}>Flowchart</option>
+                <option value="MEDIA_PLAN" ${sec.type==='MEDIA_PLAN'?'selected':''}>Plan de medios</option>
+                <option value="MEDIA" ${sec.type==='MEDIA'?'selected':''}>Media (img/video/pdf)</option>
+                <option value="ANEXO" ${sec.type==='ANEXO'?'selected':''}>Anexo</option>
+              </select>
+              <button class="remove-section text-red-500 text-sm">Eliminar</button>
+            </div>
+            ${specificBlock}
+          </div>`;
+        }).join('');
+      }
+
+      function setAutoDate(isScheduled = false, value = '') {
+        const dateInput = document.getElementById('dateInput');
+        const today = new Date().toISOString().slice(0,10);
+        dateInput.value = value || today;
+        dateInput.disabled = !isScheduled;
+        dateInput.readOnly = !isScheduled;
+        dateInput.classList.toggle('opacity-70', !isScheduled);
+      }
+
+      function mapSectionToDraft(sec) {
+        const draft = createEmptySection(sec.type || 'TEXT');
+        draft.id = sec.id || Date.now().toString();
+        draft.title = sec.title || '';
+        draft.mediaType = sec.mediaType || 'imagen';
+        if (sec.type === 'BRIEF') {
+          draft.brief = { ...draft.brief, ...(sec.content || {}) };
+        } else if (sec.type === 'FLOWCHART') {
+          draft.flow = { ...draft.flow, ...(sec.content || {}) };
+        } else if (sec.type === 'MEDIA_PLAN') {
+          draft.mediaPlan = Array.isArray(sec.content) ? sec.content.map(r => ({ canal: r.canal || '', formato: r.formato || '', ventana: r.ventana || r.fecha || '' })) : draft.mediaPlan;
+        } else if (sec.type === 'MEDIA') {
+          draft.mediaUrl = typeof sec.content === 'string' ? sec.content : sec.content?.url || '';
+        } else if (sec.type === 'ANEXO') {
+          draft.evento = sec.content?.Evento || sec.content?.evento || '';
+          draft.lugar = sec.content?.Lugar || sec.content?.lugar || '';
+          draft.fecha = sec.content?.Fecha || sec.content?.fecha || '';
+          draft.mediaUrl = sec.content?.Enlace || sec.content?.enlace || '';
+        } else {
+          draft.body = typeof sec.content === 'string' ? sec.content : '';
+        }
+        if (sec.body) draft.body = sec.body;
+        return draft;
       }
 
       function resetForm(project) {
@@ -860,21 +974,15 @@
         document.getElementById('subtitleInput').value = project?.subtitle || '';
         document.getElementById('categoryInput').value = project?.category || CATEGORY_OPTIONS[0];
         document.getElementById('statusInput').value = project?.tags?.[1] || 'Real';
-        document.getElementById('dateInput').value = project?.date ? project.date.split('T')[0] || project.date : '';
         document.getElementById('thumbInput').value = project?.thumbnailUrl || '';
         document.getElementById('notesInput').value = project?.sections?.find(s => s.id === 'note')?.content || project?.subtitle || '';
         document.getElementById('draftInput').checked = project?.draft || false;
         document.getElementById('ideaInput').checked = normalizeCategory(project?.category) === 'fraguas' || project?.isIdeaForge;
-        document.getElementById('scheduleInput').value = project?.scheduledAt ? new Date(project.scheduledAt).toISOString().slice(0,16) : '';
-        sectionDrafts = (project?.sections || []).map(sec => ({
-          ...sec,
-          body: typeof sec.content === 'string' ? sec.content : Object.entries(sec.content || {}).map(([k,v]) => `${k}: ${v}`).join('\n'),
-          mediaUrl: sec.content && typeof sec.content === 'string' ? sec.content : sec.content?.url || '',
-          mediaType: sec.mediaType,
-          evento: sec.content?.evento || sec.content?.Evento,
-          lugar: sec.content?.lugar || sec.content?.Lugar,
-          fecha: sec.content?.fecha || sec.content?.Fecha,
-        }));
+        const scheduledValue = project?.scheduledAt ? new Date(project.scheduledAt).toISOString().slice(0,16) : '';
+        document.getElementById('scheduleInput').value = scheduledValue;
+        const dateValue = project?.date ? project.date.split('T')[0] || project.date : '';
+        setAutoDate(!!scheduledValue, dateValue);
+        sectionDrafts = (project?.sections || []).filter(sec => sec.id !== 'note').map(mapSectionToDraft);
         assetDrafts = project?.assets || [];
         renderSections();
         renderAssets();
@@ -883,13 +991,14 @@
       function parseSections() {
         return sectionDrafts.map(sec => {
           const base = { id: sec.id || Date.now().toString(), title: sec.title || 'Sección', type: sec.type || 'TEXT' };
-          if (sec.type === 'BRIEF' || sec.type === 'FLOWCHART') {
-            const map = {};
-            (sec.body || '').split('\n').forEach(line => {
-              const [k,...rest] = line.split(':');
-              if (k && rest.length) map[k.trim()] = rest.join(':').trim();
-            });
-            return { ...base, content: map };
+          if (sec.type === 'BRIEF') {
+            return { ...base, content: { ...sec.brief } };
+          }
+          if (sec.type === 'FLOWCHART') {
+            return { ...base, content: { ...sec.flow } };
+          }
+          if (sec.type === 'MEDIA_PLAN') {
+            return { ...base, content: (sec.mediaPlan || []).map(row => ({ canal: row.canal || '', formato: row.formato || '', ventana: row.ventana || '' })) };
           }
           if (sec.type === 'ANEXO') {
             return { ...base, content: { Evento: sec.evento || 'Por definir', Lugar: sec.lugar || '—', Fecha: sec.fecha || '—', Enlace: sec.mediaUrl || '' } };
@@ -900,7 +1009,6 @@
           return { ...base, content: sec.body || '' };
         });
       }
-
       function renderProjectList() {
         const list = document.getElementById('projectList');
         const sorted = [...projects].sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0));
@@ -942,9 +1050,14 @@
 
       document.getElementById('newBtn').addEventListener('click', () => switchView('form'));
       document.getElementById('listBtn').addEventListener('click', () => { switchView('list'); renderProjectList(); });
+      document.getElementById('scheduleInput').addEventListener('input', (e) => {
+        const hasValue = !!e.target.value;
+        const datePart = hasValue ? e.target.value.split('T')[0] : '';
+        setAutoDate(hasValue, datePart);
+      });
 
       document.getElementById('addSectionBtn').addEventListener('click', () => {
-        sectionDrafts.push({ id: Date.now().toString(), type: 'TEXT', title: '', body: '' });
+        sectionDrafts.push(createEmptySection());
         renderSections();
       });
 
@@ -954,13 +1067,25 @@
         const sec = sectionDrafts.find(s => s.id === wrapper.dataset.sectionId);
         if (!sec) return;
         if (e.target.classList.contains('section-title')) sec.title = e.target.value;
-        if (e.target.classList.contains('section-type')) sec.type = e.target.value;
+        if (e.target.classList.contains('section-type')) {
+          const preservedTitle = sec.title;
+          Object.assign(sec, createEmptySection(e.target.value), { id: sec.id, title: preservedTitle, type: e.target.value });
+          renderSections();
+          return;
+        }
         if (e.target.classList.contains('section-body')) sec.body = e.target.value;
         if (e.target.classList.contains('section-extra-evento')) sec.evento = e.target.value;
         if (e.target.classList.contains('section-extra-lugar')) sec.lugar = e.target.value;
         if (e.target.classList.contains('section-extra-fecha')) sec.fecha = e.target.value;
         if (e.target.classList.contains('section-media-url')) sec.mediaUrl = e.target.value;
         if (e.target.classList.contains('section-media-type')) sec.mediaType = e.target.value;
+        if (e.target.dataset.brief) { sec.brief[e.target.dataset.brief] = e.target.value; }
+        if (e.target.dataset.flow) { sec.flow[e.target.dataset.flow] = e.target.value; }
+        if (e.target.dataset.planField) {
+          const rowIdx = parseInt(e.target.closest('[data-plan-row]')?.dataset.planRow || '0', 10);
+          if (!sec.mediaPlan[rowIdx]) sec.mediaPlan[rowIdx] = { canal: '', formato: '', ventana: '' };
+          sec.mediaPlan[rowIdx][e.target.dataset.planField] = e.target.value;
+        }
       });
 
       document.getElementById('sectionList').addEventListener('click', (e) => {
@@ -968,6 +1093,24 @@
           const wrapper = e.target.closest('[data-section-id]');
           sectionDrafts = sectionDrafts.filter(s => s.id !== wrapper.dataset.sectionId);
           renderSections();
+        }
+        if (e.target.classList.contains('add-plan-row')) {
+          const wrapper = e.target.closest('[data-section-id]');
+          const sec = sectionDrafts.find(s => s.id === wrapper.dataset.sectionId);
+          if (sec) {
+            sec.mediaPlan.push({ canal: '', formato: '', ventana: '' });
+            renderSections();
+          }
+        }
+        if (e.target.classList.contains('remove-plan-row')) {
+          const wrapper = e.target.closest('[data-section-id]');
+          const sec = sectionDrafts.find(s => s.id === wrapper.dataset.sectionId);
+          const rowIdx = parseInt(e.target.closest('[data-plan-row]')?.dataset.planRow || '-1', 10);
+          if (sec && rowIdx > -1) {
+            sec.mediaPlan.splice(rowIdx,1);
+            if (!sec.mediaPlan.length) sec.mediaPlan.push({ canal: '', formato: '', ventana: '' });
+            renderSections();
+          }
         }
       });
 
@@ -1088,6 +1231,7 @@
         assetDrafts = [];
         renderSections();
         renderAssets();
+        if (typeof setAutoDate === 'function') setAutoDate(false, '');
       }
 
       resetSectionsOnLoad();
