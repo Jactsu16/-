@@ -54,6 +54,9 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
   const [date, setDate] = useState(() => getTodayISO());
   const [thumbnailUrl, setThumbnailUrl] = useState(''); // Stores Base64 string
   const [isIdeaForge, setIsIdeaForge] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState<{ name: string; data: string }[]>([]);
+  const [selectedThumbnailName, setSelectedThumbnailName] = useState('');
+  const [showUploadedForSection, setShowUploadedForSection] = useState(false);
   
   // Dynamic Sections
   const [sections, setSections] = useState<ProjectSection[]>([]);
@@ -82,13 +85,34 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
+        setUploadedImages(prev => {
+          const filtered = prev.filter(img => img.name !== file.name);
+          return [...filtered, { name: file.name, data: result }];
+        });
         if (isSection) {
           setTextContent(result); // Using textContent to store image base64 for sections
         } else {
           setThumbnailUrl(result);
+          setSelectedThumbnailName(file.name);
         }
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSelectUploadedForThumbnail = (name: string) => {
+    const selected = uploadedImages.find(img => img.name === name);
+    if (selected) {
+      setThumbnailUrl(selected.data);
+      setSelectedThumbnailName(name);
+    }
+  };
+
+  const handleUseUploadedInSection = (name: string) => {
+    const selected = uploadedImages.find(img => img.name === name);
+    if (selected) {
+      setTextContent(selected.data);
+      setShowUploadedForSection(false);
     }
   };
 
@@ -147,6 +171,7 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
     setStatus('Real');
     setDate(getTodayISO());
     setThumbnailUrl('');
+    setSelectedThumbnailName('');
     setIsIdeaForge(false);
     setSections([]);
     setCurrentSectionTitle('');
@@ -261,7 +286,7 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
            <div className="space-y-1">
              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Imagen de Portada (Subir archivo)</label>
              <div className="flex gap-4 items-center">
-               <input 
+               <input
                  type="file"
                  accept="image/*"
                  onChange={(e) => handleImageUpload(e, false)}
@@ -271,8 +296,8 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
                    file:text-sm file:font-semibold
                    file:bg-blue-50 file:text-[#0076c7]
                    dark:file:bg-white/10 dark:file:text-white
-                   hover:file:bg-blue-100 dark:hover:file:bg-white/20
-                 "
+                 hover:file:bg-blue-100 dark:hover:file:bg-white/20
+               "
                />
                {thumbnailUrl && (
                  <div className="w-16 h-16 rounded-lg overflow-hidden border border-slate-200 dark:border-white/20 flex-shrink-0">
@@ -280,6 +305,21 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
                  </div>
                )}
              </div>
+              {uploadedImages.length > 0 && (
+                <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-3 mt-2">
+                  <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Elegir de imágenes subidas</label>
+                  <select
+                    value={selectedThumbnailName}
+                    onChange={e => handleSelectUploadedForThumbnail(e.target.value)}
+                    className="w-full md:w-auto p-2 rounded-lg bg-white dark:bg-black/30 border border-slate-200 dark:border-dark-border text-sm text-slate-800 dark:text-white"
+                  >
+                    <option value="">Selecciona un archivo</option>
+                    {uploadedImages.map(img => (
+                      <option key={img.name} value={img.name}>{img.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
            </div>
 
            <label className="flex items-center gap-2 cursor-pointer bg-slate-50 dark:bg-black/20 p-3 rounded-lg border border-transparent dark:border-dark-border hover:border-[#0087fc] transition-colors">
@@ -348,17 +388,43 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
               {currentSectionType === 'IMAGE' && (
                  <div className="space-y-3">
                     <p className="text-sm text-slate-500 dark:text-slate-400">Sube una imagen para esta sección:</p>
-                    <input 
+                    <input
                       type="file"
                       accept="image/*"
                       onChange={(e) => handleImageUpload(e, true)}
                       className="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#0076c7] dark:file:bg-white/10 dark:file:text-white"
                     />
+                    {uploadedImages.length > 0 && (
+                      <div className="space-y-2">
+                        <button
+                          type="button"
+                          onClick={() => setShowUploadedForSection(!showUploadedForSection)}
+                          className="w-full py-2 px-3 rounded-lg bg-white dark:bg-black/40 border border-slate-200 dark:border-dark-border text-sm font-semibold text-[#005e91] dark:text-white hover:bg-blue-50 dark:hover:bg-white/10 transition-colors"
+                        >
+                          Agregar Imágenes Subidas
+                        </button>
+                        {showUploadedForSection && (
+                          <div className="bg-white dark:bg-black/60 border border-slate-200 dark:border-dark-border rounded-lg p-3 space-y-2 max-h-40 overflow-y-auto">
+                            {uploadedImages.map(img => (
+                              <button
+                                key={img.name}
+                                type="button"
+                                onClick={() => handleUseUploadedInSection(img.name)}
+                                className="w-full text-left px-2 py-1 rounded-md text-sm text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-white/10"
+                              >
+                                {img.name}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400">Solo se muestran los nombres de las imágenes subidas recientemente.</p>
+                      </div>
+                    )}
                     {textContent && textContent.startsWith('data:image') && (
                        <img src={textContent} alt="Preview" className="h-32 rounded border border-slate-200 dark:border-white/20" />
                     )}
                     {/* Fallback for manual URL */}
-                    <input 
+                    <input
                       className="w-full p-2 mt-2 bg-white dark:bg-black/40 border border-slate-200 dark:border-dark-border rounded text-sm text-slate-800 dark:text-white"
                       placeholder="O pega una URL de imagen..."
                       value={textContent}
