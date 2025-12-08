@@ -1,9 +1,11 @@
 
 import React, { useState } from 'react';
-import { Project, ProjectCategory, ProjectSection, SectionType, BriefData, FlowchartData, ProjectStatus } from '../types';
+import { Project, ProjectCategory, ProjectSection, SectionType, BriefData, FlowchartData, ProjectStatus, ImageAsset } from '../types';
 
 interface CPanelViewProps {
   onAddProject: (project: Project) => void;
+  imageLibrary: ImageAsset[];
+  onUpdateImageLibrary: (items: ImageAsset[] | ((prev: ImageAsset[]) => ImageAsset[])) => void;
 }
 
 const SECTION_TYPES: { type: SectionType, label: string }[] = [
@@ -39,7 +41,7 @@ const INITIAL_FLOWCHART: FlowchartData = {
 const PASSWORD = 'J162004';
 const getTodayISO = () => new Date().toISOString().split('T')[0];
 
-const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
+const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject, imageLibrary, onUpdateImageLibrary }) => {
   // Auth State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
@@ -54,9 +56,9 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
   const [date, setDate] = useState(() => getTodayISO());
   const [thumbnailUrl, setThumbnailUrl] = useState(''); // Stores Base64 string
   const [isIdeaForge, setIsIdeaForge] = useState(false);
-  const [uploadedImages, setUploadedImages] = useState<{ name: string; data: string }[]>([]);
   const [selectedThumbnailName, setSelectedThumbnailName] = useState('');
   const [showUploadedForSection, setShowUploadedForSection] = useState(false);
+  const [thumbnailFocus, setThumbnailFocus] = useState({ x: 50, y: 50 });
   
   // Dynamic Sections
   const [sections, setSections] = useState<ProjectSection[]>([]);
@@ -85,9 +87,10 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
-        setUploadedImages(prev => {
+        onUpdateImageLibrary(prev => {
           const filtered = prev.filter(img => img.name !== file.name);
-          return [...filtered, { name: file.name, data: result }];
+          const newItem: ImageAsset = { name: file.name, data: result, createdAt: new Date().toISOString() };
+          return [...filtered, newItem];
         });
         if (isSection) {
           setTextContent(result); // Using textContent to store image base64 for sections
@@ -101,7 +104,7 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
   };
 
   const handleSelectUploadedForThumbnail = (name: string) => {
-    const selected = uploadedImages.find(img => img.name === name);
+    const selected = imageLibrary.find(img => img.name === name);
     if (selected) {
       setThumbnailUrl(selected.data);
       setSelectedThumbnailName(name);
@@ -109,11 +112,16 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
   };
 
   const handleUseUploadedInSection = (name: string) => {
-    const selected = uploadedImages.find(img => img.name === name);
+    const selected = imageLibrary.find(img => img.name === name);
     if (selected) {
       setTextContent(selected.data);
       setShowUploadedForSection(false);
     }
+  };
+
+  const handleInsertTokenInSection = (name: string) => {
+    setTextContent(prev => `${prev ? `${prev} ` : ''}@${name}`);
+    setShowUploadedForSection(false);
   };
 
   const handleAddSection = () => {
@@ -156,8 +164,9 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
       category,
       status,
       // Combine date and status into tags for display in PortfolioView
-      tags: [displayDate, status], 
+      tags: [displayDate, status],
       thumbnailUrl: thumbnailUrl || 'https://via.placeholder.com/600x400',
+      thumbnailFocus,
       date: displayDate,
       sections,
       isIdeaForge
@@ -179,6 +188,7 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
     setTextContent('');
     setBriefContent(INITIAL_BRIEF);
     setFlowchartContent(INITIAL_FLOWCHART);
+    setThumbnailFocus({ x: 50, y: 50 });
   };
 
   if (!isAuthenticated) {
@@ -284,11 +294,11 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
            </div>
            
            <div className="space-y-1">
-             <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Imagen de Portada (Subir archivo)</label>
-             <div className="flex gap-4 items-center">
-               <input
-                 type="file"
-                 accept="image/*"
+           <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Imagen de Portada (Subir archivo)</label>
+            <div className="flex gap-4 items-center">
+              <input
+                type="file"
+                accept="image/*"
                  onChange={(e) => handleImageUpload(e, false)}
                  className="block w-full text-sm text-slate-500 dark:text-slate-400
                    file:mr-4 file:py-2 file:px-4
@@ -296,30 +306,63 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
                    file:text-sm file:font-semibold
                    file:bg-blue-50 file:text-[#0076c7]
                    dark:file:bg-white/10 dark:file:text-white
-                 hover:file:bg-blue-100 dark:hover:file:bg-white/20
-               "
-               />
-               {thumbnailUrl && (
-                 <div className="w-16 h-16 rounded-lg overflow-hidden border border-slate-200 dark:border-white/20 flex-shrink-0">
-                   <img src={thumbnailUrl} alt="Preview" className="w-full h-full object-cover" />
-                 </div>
-               )}
-             </div>
-              {uploadedImages.length > 0 && (
-                <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-3 mt-2">
-                  <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Elegir de imágenes subidas</label>
-                  <select
-                    value={selectedThumbnailName}
-                    onChange={e => handleSelectUploadedForThumbnail(e.target.value)}
-                    className="w-full md:w-auto p-2 rounded-lg bg-white dark:bg-black/30 border border-slate-200 dark:border-dark-border text-sm text-slate-800 dark:text-white"
-                  >
-                    <option value="">Selecciona un archivo</option>
-                    {uploadedImages.map(img => (
-                      <option key={img.name} value={img.name}>{img.name}</option>
-                    ))}
-                  </select>
+                hover:file:bg-blue-100 dark:hover:file:bg-white/20
+              "
+              />
+              {thumbnailUrl && (
+                <div className="w-16 h-16 rounded-lg overflow-hidden border border-slate-200 dark:border-white/20 flex-shrink-0">
+                  <img
+                    src={thumbnailUrl}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                    style={{ objectPosition: `${thumbnailFocus.x}% ${thumbnailFocus.y}%` }}
+                  />
                 </div>
               )}
+            </div>
+             {thumbnailUrl && (
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 bg-white dark:bg-black/30 p-3 rounded-lg border border-slate-200 dark:border-dark-border">
+                 <div>
+                   <label className="text-[11px] uppercase font-bold text-slate-400">Recorte horizontal</label>
+                   <input
+                     type="range"
+                     min={0}
+                     max={100}
+                     value={thumbnailFocus.x}
+                     onChange={e => setThumbnailFocus({ ...thumbnailFocus, x: Number(e.target.value) })}
+                     className="w-full"
+                   />
+                 </div>
+                 <div>
+                   <label className="text-[11px] uppercase font-bold text-slate-400">Recorte vertical</label>
+                   <input
+                     type="range"
+                     min={0}
+                     max={100}
+                     value={thumbnailFocus.y}
+                     onChange={e => setThumbnailFocus({ ...thumbnailFocus, y: Number(e.target.value) })}
+                     className="w-full"
+                   />
+                 </div>
+                 <p className="col-span-1 md:col-span-2 text-[11px] text-slate-500 dark:text-slate-400">Mueve los controles para elegir el punto exacto donde se recorta la miniatura.</p>
+               </div>
+             )}
+             {imageLibrary.length > 0 && (
+              <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-3 mt-2">
+                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Elegir de imágenes subidas</label>
+                <select
+                  value={selectedThumbnailName}
+                  onChange={e => handleSelectUploadedForThumbnail(e.target.value)}
+                  className="w-full md:w-auto p-2 rounded-lg bg-white dark:bg-black/30 border border-slate-200 dark:border-dark-border text-sm text-slate-800 dark:text-white"
+                >
+                  <option value="">Selecciona un archivo</option>
+                  {imageLibrary.map(img => (
+                    <option key={img.name} value={img.name}>{img.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">Las imágenes viven en una biblioteca común. Usa <span className="font-semibold">@nombre-del-archivo</span> para referenciarlas en cualquier sección o proyecto.</p>
            </div>
 
            <label className="flex items-center gap-2 cursor-pointer bg-slate-50 dark:bg-black/20 p-3 rounded-lg border border-transparent dark:border-dark-border hover:border-[#0087fc] transition-colors">
@@ -377,12 +420,16 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
            <div className="bg-slate-50 dark:bg-black/20 p-4 rounded-xl border border-slate-200 dark:border-dark-border transition-all">
               
               {currentSectionType === 'TEXT' && (
-                <textarea 
-                  className="w-full h-32 p-3 bg-white dark:bg-black/40 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white font-mono text-sm focus:ring-2 focus:ring-[#0087fc] outline-none"
-                  placeholder="Escribe el contenido del párrafo..."
-                  value={textContent}
-                  onChange={e => setTextContent(e.target.value)}
-                />
+                <div className="space-y-2">
+                  <textarea
+                    className="w-full h-32 p-3 bg-white dark:bg-black/40 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white font-mono text-sm focus:ring-2 focus:ring-[#0087fc] outline-none"
+                    placeholder="Escribe el contenido del párrafo..."
+                    value={textContent}
+                    onChange={e => setTextContent(e.target.value)}
+                  />
+
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Usa <span className="font-semibold">@nombre-del-archivo</span> para incrustar una imagen de la biblioteca dentro del texto.</p>
+                </div>
               )}
 
               {currentSectionType === 'IMAGE' && (
@@ -394,7 +441,7 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
                       onChange={(e) => handleImageUpload(e, true)}
                       className="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#0076c7] dark:file:bg-white/10 dark:file:text-white"
                     />
-                    {uploadedImages.length > 0 && (
+                    {imageLibrary.length > 0 && (
                       <div className="space-y-2">
                         <button
                           type="button"
@@ -405,15 +452,23 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
                         </button>
                         {showUploadedForSection && (
                           <div className="bg-white dark:bg-black/60 border border-slate-200 dark:border-dark-border rounded-lg p-3 space-y-2 max-h-40 overflow-y-auto">
-                            {uploadedImages.map(img => (
-                              <button
-                                key={img.name}
-                                type="button"
-                                onClick={() => handleUseUploadedInSection(img.name)}
-                                className="w-full text-left px-2 py-1 rounded-md text-sm text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-white/10"
-                              >
-                                {img.name}
-                              </button>
+                            {imageLibrary.map(img => (
+                              <div key={img.name} className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => handleUseUploadedInSection(img.name)}
+                                  className="flex-1 text-left px-2 py-1 rounded-md text-sm text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-white/10"
+                                >
+                                  Insertar imagen ({img.name})
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleInsertTokenInSection(img.name)}
+                                  className="px-2 py-1 text-[11px] font-semibold bg-blue-50 dark:bg-white/10 text-[#005e91] dark:text-white rounded-md border border-slate-200 dark:border-white/10"
+                                >
+                                  @
+                                </button>
+                              </div>
                             ))}
                           </div>
                         )}

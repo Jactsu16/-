@@ -28,6 +28,12 @@ export type ProjectCategory = 'Estrategia' | 'Diseño' | 'Website' | 'Varios';
 export type SectionType = 'TEXT' | 'BRIEF' | 'FLOWCHART' | 'IMAGE';
 export type ProjectStatus = 'Real' | 'Ficticio' | 'Estudio de Caso';
 
+export interface ImageAsset {
+  name: string;
+  data: string; // Base64 o URL
+  createdAt?: string;
+}
+
 export interface BriefData {
   antecedentes: string;
   historiaProducto: string;
@@ -63,6 +69,7 @@ export interface Project {
   status?: ProjectStatus; // New field
   tags: string[];
   thumbnailUrl: string; // URL or base64
+  thumbnailFocus?: { x: number; y: number }; // Punto de recorte para miniatura
   date: string;
   sections: ProjectSection[];
   isIdeaForge?: boolean; // For "Fraguas de ideas"

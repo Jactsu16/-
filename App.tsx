@@ -7,7 +7,7 @@ import ChatInterface from './components/ChatInterface';
 import PortfolioView from './components/PortfolioView';
 import CPanelView from './components/CPanelView';
 import Footer from './components/Footer';
-import { ViewState, Project } from './types';
+import { ViewState, Project, ImageAsset } from './types';
 
 // Initial Data from the user's image
 const INITIAL_PROJECTS: Project[] = [
@@ -90,6 +90,22 @@ const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewState>(ViewState.HOME);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [projects, setProjects] = useState<Project[]>(INITIAL_PROJECTS);
+  const [imageLibrary, setImageLibrary] = useState<ImageAsset[]>([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('panel-image-library');
+    if (stored) {
+      try {
+        setImageLibrary(JSON.parse(stored));
+      } catch (error) {
+        console.error('Error parsing stored image library', error);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('panel-image-library', JSON.stringify(imageLibrary));
+  }, [imageLibrary]);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -122,8 +138,16 @@ const App: React.FC = () => {
       <div className="flex-grow transition-opacity duration-300 ease-in-out">
         {currentView === ViewState.HOME && <ProfileView />}
         {currentView === ViewState.CHATBOT && <ChatInterface />}
-        {currentView === ViewState.PORTFOLIO && <PortfolioView projects={projects} />}
-        {currentView === ViewState.CPANEL && <CPanelView onAddProject={handleAddProject} />}
+        {currentView === ViewState.PORTFOLIO && (
+          <PortfolioView projects={projects} imageLibrary={imageLibrary} />
+        )}
+        {currentView === ViewState.CPANEL && (
+          <CPanelView
+            onAddProject={handleAddProject}
+            imageLibrary={imageLibrary}
+            onUpdateImageLibrary={setImageLibrary}
+          />
+        )}
       </div>
 
       <Footer />
