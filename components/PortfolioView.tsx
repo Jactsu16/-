@@ -20,7 +20,26 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ projects }) => {
 
   return (
     <div className="pt-24 md:pt-[110px] pb-12 px-4 md:px-6 max-w-[1200px] mx-auto min-h-screen">
-      
+
+      {/* Curriculum Banner */}
+      <div className="mb-8 animate-slide-up">
+        <a
+          href="/curriculum.html"
+          className="group flex items-center justify-between gap-3 px-4 py-2 rounded-full border border-[#b6d0ff] dark:border-dark-border bg-gradient-to-r from-[#e7f1ff] via-white to-[#f4fbff] dark:from-black/60 dark:via-dark-card dark:to-black/50 shadow-sm hover:shadow-md transition-all duration-300"
+        >
+          <div className="flex items-center gap-3 text-[#005e91] dark:text-white text-sm md:text-base font-semibold tracking-tight">
+            <span className="px-2 py-1 text-[10px] uppercase font-bold rounded-full bg-[#0087fc] text-white shadow-sm">New</span>
+            <span className="leading-tight">Tócame, conóceme: Currículum vital interactivo sobre Finlandia</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-[#005e91] dark:text-brand-primary font-semibold">
+            <span className="hidden sm:inline">Tócame y descubre más</span>
+            <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </a>
+      </div>
+
       {/* Header */}
       <div className="text-center mb-12 animate-fade-in">
         <div className="inline-block border border-[#b6d0ff] dark:border-brand-primary/50 rounded-full px-6 py-1 mb-6">

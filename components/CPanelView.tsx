@@ -57,6 +57,9 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
   
   // Dynamic Sections
   const [sections, setSections] = useState<ProjectSection[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<{ name: string; data: string }[]>([]);
+  const [thumbnailChoice, setThumbnailChoice] = useState('');
+  const [sectionImageChoice, setSectionImageChoice] = useState('');
   
   // Section Editor State
   const [currentSectionTitle, setCurrentSectionTitle] = useState('');
@@ -82,6 +85,10 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
+        setUploadedImages(prev => {
+          const filtered = prev.filter(img => img.name !== file.name);
+          return [...filtered, { name: file.name, data: result }];
+        });
         if (isSection) {
           setTextContent(result); // Using textContent to store image base64 for sections
         } else {
@@ -89,6 +96,13 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
         }
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleUseUploadedImage = (imageName: string, setter: (value: string) => void) => {
+    const found = uploadedImages.find(img => img.name === imageName);
+    if (found) {
+      setter(found.data);
     }
   };
 
@@ -112,6 +126,7 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
     setTextContent('');
     setBriefContent(INITIAL_BRIEF);
     setFlowchartContent(INITIAL_FLOWCHART);
+    setSectionImageChoice('');
   };
 
   const handlePublish = () => {
@@ -147,6 +162,7 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
     setStatus('Real');
     setDate(getTodayISO());
     setThumbnailUrl('');
+    setThumbnailChoice('');
     setIsIdeaForge(false);
     setSections([]);
     setCurrentSectionTitle('');
@@ -259,11 +275,11 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
            </div>
            
            <div className="space-y-1">
-             <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Imagen de Portada (Subir archivo)</label>
-             <div className="flex gap-4 items-center">
-               <input 
-                 type="file"
-                 accept="image/*"
+           <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Imagen de Portada (Subir archivo)</label>
+           <div className="flex gap-4 items-center">
+             <input
+               type="file"
+               accept="image/*"
                  onChange={(e) => handleImageUpload(e, false)}
                  className="block w-full text-sm text-slate-500 dark:text-slate-400
                    file:mr-4 file:py-2 file:px-4
@@ -279,8 +295,30 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
                    <img src={thumbnailUrl} alt="Preview" className="w-full h-full object-cover" />
                  </div>
                )}
-             </div>
            </div>
+            {uploadedImages.length > 0 && (
+              <div className="mt-3 flex flex-col sm:flex-row sm:items-center gap-2">
+                <select
+                  className="w-full sm:w-2/3 p-2 bg-white dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-sm text-slate-800 dark:text-white"
+                  value={thumbnailChoice}
+                  onChange={(e) => setThumbnailChoice(e.target.value)}
+                >
+                  <option value="">Elegir imagen subida por nombre</option>
+                  {uploadedImages.map(img => (
+                    <option key={img.name} value={img.name}>{img.name}</option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => handleUseUploadedImage(thumbnailChoice, setThumbnailUrl)}
+                  disabled={!thumbnailChoice}
+                  className="w-full sm:w-auto px-4 py-2 rounded-lg border border-[#0087fc] text-[#005e91] dark:text-white font-semibold text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-blue-50 dark:hover:bg-white/10"
+                >
+                  Usar como miniatura
+                </button>
+              </div>
+            )}
+          </div>
 
            <label className="flex items-center gap-2 cursor-pointer bg-slate-50 dark:bg-black/20 p-3 rounded-lg border border-transparent dark:border-dark-border hover:border-[#0087fc] transition-colors">
               <input type="checkbox" checked={isIdeaForge} onChange={e => setIsIdeaForge(e.target.checked)} className="rounded text-blue-500 w-5 h-5" />
@@ -348,17 +386,39 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
               {currentSectionType === 'IMAGE' && (
                  <div className="space-y-3">
                     <p className="text-sm text-slate-500 dark:text-slate-400">Sube una imagen para esta sección:</p>
-                    <input 
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleImageUpload(e, true)}
-                      className="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#0076c7] dark:file:bg-white/10 dark:file:text-white"
-                    />
-                    {textContent && textContent.startsWith('data:image') && (
-                       <img src={textContent} alt="Preview" className="h-32 rounded border border-slate-200 dark:border-white/20" />
-                    )}
-                    {/* Fallback for manual URL */}
-                    <input 
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleImageUpload(e, true)}
+                    className="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#0076c7] dark:file:bg-white/10 dark:file:text-white"
+                  />
+                  {uploadedImages.length > 0 && (
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                      <select
+                        className="w-full sm:w-2/3 p-2 bg-white dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-lg text-sm text-slate-800 dark:text-white"
+                        value={sectionImageChoice}
+                        onChange={(e) => setSectionImageChoice(e.target.value)}
+                      >
+                        <option value="">Agregar imágenes subidas por nombre</option>
+                        {uploadedImages.map(img => (
+                          <option key={img.name} value={img.name}>{img.name}</option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => handleUseUploadedImage(sectionImageChoice, setTextContent)}
+                        disabled={!sectionImageChoice}
+                        className="w-full sm:w-auto px-4 py-2 rounded-lg border border-[#0087fc] text-[#005e91] dark:text-white font-semibold text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-blue-50 dark:hover:bg-white/10"
+                      >
+                        Agregar imágenes subidas
+                      </button>
+                    </div>
+                  )}
+                  {textContent && textContent.startsWith('data:image') && (
+                     <img src={textContent} alt="Preview" className="h-32 rounded border border-slate-200 dark:border-white/20" />
+                  )}
+                  {/* Fallback for manual URL */}
+                  <input
                       className="w-full p-2 mt-2 bg-white dark:bg-black/40 border border-slate-200 dark:border-dark-border rounded text-sm text-slate-800 dark:text-white"
                       placeholder="O pega una URL de imagen..."
                       value={textContent}
