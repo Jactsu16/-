@@ -66,10 +66,11 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ projects }) => {
           >
             {/* Card Image */}
             <div className="bg-slate-100 dark:bg-dark-card rounded-2xl overflow-hidden aspect-[4/3] mb-4 relative shadow-sm border border-transparent dark:border-dark-border group-hover:shadow-xl transition-all duration-300">
-               <img 
-                 src={project.thumbnailUrl} 
-                 alt={project.title} 
+               <img
+                 src={project.thumbnailUrl}
+                 alt={project.title}
                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                 style={{ objectPosition: `${project.thumbnailFocus?.x ?? 50}% ${project.thumbnailFocus?.y ?? 50}%` }}
                />
                <div className="absolute top-4 left-4">
                  <span className="bg-white/90 dark:bg-black/80 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-[#005e91] dark:text-brand-primary border border-white/20">
@@ -146,7 +147,13 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ projects }) => {
 
               {/* Cover Image */}
               <div className="h-64 md:h-80 w-full relative">
-                 <img src={selectedProject.thumbnailUrl} alt={selectedProject.title} className="w-full h-full object-cover" />
+                <img
+                  src={selectedProject.thumbnailUrl}
+                  alt={selectedProject.title}
+                  className="w-full h-full object-cover"
+                  style={{ objectPosition: `${selectedProject.thumbnailFocus?.x ?? 50}% ${selectedProject.thumbnailFocus?.y ?? 50}%` }}
+                />
+
                  <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-black to-transparent" />
                  <div className="absolute bottom-6 left-6 md:left-10">
                     <span className="bg-[#0087fc] text-white text-xs font-bold px-3 py-1 rounded mb-3 inline-block">

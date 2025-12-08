@@ -63,6 +63,7 @@ export interface Project {
   status?: ProjectStatus; // New field
   tags: string[];
   thumbnailUrl: string; // URL or base64
+  thumbnailFocus?: { x: number; y: number }; // 0-100 percentages for crop focus
   date: string;
   sections: ProjectSection[];
   isIdeaForge?: boolean; // For "Fraguas de ideas"

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Project, ProjectCategory, ProjectSection, SectionType, BriefData, FlowchartData, ProjectStatus } from '../types';
 
 interface CPanelViewProps {
@@ -53,10 +53,14 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
   const [status, setStatus] = useState<ProjectStatus>('Real');
   const [date, setDate] = useState(() => getTodayISO());
   const [thumbnailUrl, setThumbnailUrl] = useState(''); // Stores Base64 string
+  const [thumbnailFocusX, setThumbnailFocusX] = useState(50);
+  const [thumbnailFocusY, setThumbnailFocusY] = useState(50);
   const [isIdeaForge, setIsIdeaForge] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<{ name: string; data: string }[]>([]);
   const [selectedThumbnailName, setSelectedThumbnailName] = useState('');
+  const [thumbnailToken, setThumbnailToken] = useState('');
   const [showUploadedForSection, setShowUploadedForSection] = useState(false);
+  const [sectionError, setSectionError] = useState('');
   
   // Dynamic Sections
   const [sections, setSections] = useState<ProjectSection[]>([]);
@@ -67,6 +71,24 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
   const [textContent, setTextContent] = useState('');
   const [briefContent, setBriefContent] = useState<BriefData>(INITIAL_BRIEF);
   const [flowchartContent, setFlowchartContent] = useState<FlowchartData>(INITIAL_FLOWCHART);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('cpanel_uploaded_images');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          setUploadedImages(parsed);
+        }
+      } catch (err) {
+        console.error('Error loading stored images', err);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('cpanel_uploaded_images', JSON.stringify(uploadedImages));
+  }, [uploadedImages]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,11 +122,29 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
     }
   };
 
+  const findImageByToken = (token: string) => {
+    const cleanName = token.replace(/^@/, '');
+    return uploadedImages.find(img => img.name === cleanName);
+  };
+
   const handleSelectUploadedForThumbnail = (name: string) => {
     const selected = uploadedImages.find(img => img.name === name);
     if (selected) {
       setThumbnailUrl(selected.data);
       setSelectedThumbnailName(name);
+      setThumbnailToken(`@${name}`);
+    }
+  };
+
+  const handleApplyThumbnailToken = () => {
+    if (!thumbnailToken.trim()) return;
+    const found = findImageByToken(thumbnailToken.trim());
+    if (found) {
+      setThumbnailUrl(found.data);
+      setSelectedThumbnailName(found.name);
+      setFormError('');
+    } else {
+      setFormError('No se encontró una imagen con ese nombre para la portada.');
     }
   };
 
@@ -117,10 +157,20 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
   };
 
   const handleAddSection = () => {
+    setSectionError('');
     let content: any;
     if (currentSectionType === 'TEXT' || currentSectionType === 'IMAGE') content = textContent;
     else if (currentSectionType === 'BRIEF') content = briefContent;
     else if (currentSectionType === 'FLOWCHART') content = flowchartContent;
+
+    if (currentSectionType === 'IMAGE' && typeof content === 'string' && content.trim().startsWith('@')) {
+      const found = findImageByToken(content.trim());
+      if (!found) {
+        setSectionError('No se encontró una imagen con ese nombre. Sube el archivo y usa @nombre.');
+        return;
+      }
+      content = found.data;
+    }
 
     const newSection: ProjectSection = {
       id: Date.now().toString(),
@@ -156,8 +206,9 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
       category,
       status,
       // Combine date and status into tags for display in PortfolioView
-      tags: [displayDate, status], 
+      tags: [displayDate, status],
       thumbnailUrl: thumbnailUrl || 'https://via.placeholder.com/600x400',
+      thumbnailFocus: { x: thumbnailFocusX, y: thumbnailFocusY },
       date: displayDate,
       sections,
       isIdeaForge
@@ -172,6 +223,9 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
     setDate(getTodayISO());
     setThumbnailUrl('');
     setSelectedThumbnailName('');
+    setThumbnailToken('');
+    setThumbnailFocusX(50);
+    setThumbnailFocusY(50);
     setIsIdeaForge(false);
     setSections([]);
     setCurrentSectionTitle('');
@@ -301,13 +355,42 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
                />
                {thumbnailUrl && (
                  <div className="w-16 h-16 rounded-lg overflow-hidden border border-slate-200 dark:border-white/20 flex-shrink-0">
-                   <img src={thumbnailUrl} alt="Preview" className="w-full h-full object-cover" />
-                 </div>
-               )}
-             </div>
-              {uploadedImages.length > 0 && (
-                <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-3 mt-2">
-                  <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Elegir de imágenes subidas</label>
+                  <img
+                    src={thumbnailUrl}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                    style={{ objectPosition: `${thumbnailFocusX}% ${thumbnailFocusY}%` }}
+                  />
+                </div>
+              )}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Foco horizontal</label>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={thumbnailFocusX}
+                  onChange={e => setThumbnailFocusX(Number(e.target.value))}
+                  className="w-full accent-[#0087fc]"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Foco vertical</label>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={thumbnailFocusY}
+                  onChange={e => setThumbnailFocusY(Number(e.target.value))}
+                  className="w-full accent-[#0087fc]"
+                />
+              </div>
+            </div>
+            {uploadedImages.length > 0 && (
+              <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-3 mt-2">
+                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Elegir de imágenes subidas</label>
                   <select
                     value={selectedThumbnailName}
                     onChange={e => handleSelectUploadedForThumbnail(e.target.value)}
@@ -318,8 +401,38 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
                       <option key={img.name} value={img.name}>{img.name}</option>
                     ))}
                   </select>
+                  <div className="flex items-center gap-2 w-full md:w-auto">
+                    <input
+                      value={thumbnailToken}
+                      onChange={e => setThumbnailToken(e.target.value)}
+                      placeholder="@nombre para usar"
+                      className="flex-1 md:w-48 p-2 rounded-lg bg-white dark:bg-black/30 border border-slate-200 dark:border-dark-border text-sm text-slate-800 dark:text-white"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleApplyThumbnailToken}
+                      className="px-3 py-2 bg-[#0087fc] text-white rounded-lg text-sm font-semibold hover:bg-[#005e91]"
+                    >
+                      Usar
+                    </button>
+                  </div>
                 </div>
               )}
+            {uploadedImages.length > 0 && (
+              <div className="mt-3 p-3 rounded-lg bg-slate-50 dark:bg-black/30 border border-dashed border-slate-300 dark:border-dark-border">
+                <p className="text-xs text-slate-600 dark:text-slate-300 mb-2 font-semibold">Banco de imágenes (usa @nombre para reutilizar)</p>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-40 overflow-y-auto">
+                  {uploadedImages.map(img => (
+                    <div key={img.name} className="flex items-center gap-2 bg-white dark:bg-black/40 p-2 rounded border border-slate-200 dark:border-white/10">
+                      <div className="w-10 h-10 rounded overflow-hidden border border-slate-200 dark:border-white/10">
+                        <img src={img.data} alt={img.name} className="w-full h-full object-cover" />
+                      </div>
+                      <span className="text-xs font-mono text-[#005e91] dark:text-white">@{img.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
            </div>
 
            <label className="flex items-center gap-2 cursor-pointer bg-slate-50 dark:bg-black/20 p-3 rounded-lg border border-transparent dark:border-dark-border hover:border-[#0087fc] transition-colors">
@@ -374,7 +487,7 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
            </div>
 
            {/* Dynamic Inputs based on Type */}
-           <div className="bg-slate-50 dark:bg-black/20 p-4 rounded-xl border border-slate-200 dark:border-dark-border transition-all">
+          <div className="bg-slate-50 dark:bg-black/20 p-4 rounded-xl border border-slate-200 dark:border-dark-border transition-all">
               
               {currentSectionType === 'TEXT' && (
                 <textarea 
@@ -423,13 +536,14 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
                     {textContent && textContent.startsWith('data:image') && (
                        <img src={textContent} alt="Preview" className="h-32 rounded border border-slate-200 dark:border-white/20" />
                     )}
-                    {/* Fallback for manual URL */}
+                    {/* Fallback for manual URL o referencia */}
                     <input
                       className="w-full p-2 mt-2 bg-white dark:bg-black/40 border border-slate-200 dark:border-dark-border rounded text-sm text-slate-800 dark:text-white"
-                      placeholder="O pega una URL de imagen..."
+                      placeholder="Pega una URL o escribe @nombre"
                       value={textContent}
                       onChange={e => setTextContent(e.target.value)}
                     />
+                    {sectionError && <p className="text-red-500 text-sm">{sectionError}</p>}
                  </div>
               )}
 
