@@ -26,7 +26,7 @@ const NavBar: React.FC<NavBarProps> = ({ currentView, setView, isDarkMode, toggl
   };
 
   return (
-    <header className="fixed top-6 left-0 right-0 z-50 px-4">
+    <header className="fixed top-14 md:top-[68px] left-0 right-0 z-50 px-4">
       <nav className="glass-effect border border-[#b6d0ff] dark:border-dark-border rounded-full shadow-[0px_4px_6px_rgba(0,0,0,0.1),0px_10px_15px_rgba(0,0,0,0.1)] px-4 md:px-6 py-3 max-w-[965px] h-[54px] mx-auto flex items-center justify-between transition-all duration-300">
         <h1 
           onClick={() => setView(ViewState.HOME)}

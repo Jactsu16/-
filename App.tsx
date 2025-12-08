@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import NavBar from './components/NavBar';
+import TopBanner from './components/TopBanner';
 import ProfileView from './components/ProfileView';
 import ChatInterface from './components/ChatInterface';
 import PortfolioView from './components/PortfolioView';
@@ -110,9 +111,10 @@ const App: React.FC = () => {
       {/* Background decoration */}
       <div className="fixed top-0 left-0 w-full h-[600px] bg-gradient-to-b from-blue-50 to-white dark:from-black dark:to-dark-bg -z-10 pointer-events-none opacity-60" />
 
-      <NavBar 
-        currentView={currentView} 
-        setView={setCurrentView} 
+      <TopBanner />
+      <NavBar
+        currentView={currentView}
+        setView={setCurrentView}
         isDarkMode={isDarkMode}
         toggleDarkMode={toggleDarkMode}
       />
