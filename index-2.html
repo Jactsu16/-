@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Currículum interactivo - Jamileth J. Guerra</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+            playfair: ['Playfair Display', 'serif'],
+          },
+          colors: {
+            nord: {
+              sky: '#b5e0ff',
+              ocean: '#0f4c75',
+              midnight: '#0b1b2b',
+              ice: '#ebf6ff'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gradient-to-b from-nord-ice via-white to-nord-ice text-slate-900 font-inter min-h-screen">
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10 bg-white/90 rounded-2xl shadow-lg border border-nord-sky p-6">
+      <div>
+        <p class="text-xs uppercase tracking-[0.25em] text-nord-ocean font-bold">Versión experimental</p>
+        <h1 class="text-3xl sm:text-4xl font-bold text-nord-midnight">Currículum vital interactivo</h1>
+        <p class="text-sm text-slate-600">Explora mi CV en un lienzo separado, pensado para contar la historia completa (incluyendo mis capítulos en Finlandia).
+        </p>
+      </div>
+      <a href="/" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-nord-ocean text-white font-semibold shadow hover:-translate-y-0.5 transition-transform">⬅ Volver al portafolio</a>
+    </header>
+
+    <section class="grid gap-6 md:grid-cols-3 mb-10">
+      <div class="md:col-span-2 bg-white rounded-2xl border border-nord-sky shadow p-6">
+        <h2 class="text-xl font-bold text-nord-midnight mb-3">Experiencia dinamizada</h2>
+        <p class="text-slate-700 mb-4">Aquí podrás activar cada bloque de mi trayectoria: estudios, proyectos clave y aprendizajes en Finlandia. Esta página está lista para recibir datos dinámicos cuando los tengas.</p>
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div class="p-3 rounded-xl bg-nord-ice text-nord-midnight border border-nord-sky">Timeline editable</div>
+          <div class="p-3 rounded-xl bg-nord-ice text-nord-midnight border border-nord-sky">Moodboard de evidencias</div>
+          <div class="p-3 rounded-xl bg-nord-ice text-nord-midnight border border-nord-sky">Citas y logros</div>
+          <div class="p-3 rounded-xl bg-nord-ice text-nord-midnight border border-nord-sky">Links verificables</div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl border border-nord-sky shadow p-6 flex flex-col gap-4">
+        <div>
+          <p class="text-xs uppercase text-nord-ocean font-bold">Call to action</p>
+          <h3 class="text-lg font-bold text-nord-midnight">Tócame, tócame</h3>
+          <p class="text-sm text-slate-600">Versión desplegable del CV con énfasis en mi ruta entre Panamá y Finlandia.</p>
+        </div>
+        <a href="#" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-nord-ocean to-nord-sky text-white font-semibold shadow hover:shadow-lg transition-shadow">Explorar capítulos finlandeses</a>
+      </div>
+    </section>
+
+    <section class="bg-white rounded-2xl border border-nord-sky shadow p-6">
+      <h2 class="text-xl font-bold text-nord-midnight mb-3">Próximos pasos</h2>
+      <ul class="list-disc pl-5 space-y-2 text-slate-700">
+        <li>Conectar datos desde el panel principal para poblar esta página.</li>
+        <li>Integrar módulos interactivos (línea de tiempo, galería, descargas).</li>
+        <li>Resaltar el capítulo de Finlandia con storytelling visual.</li>
+      </ul>
+      <p class="mt-4 text-sm text-slate-500">Esta página vive en <strong>index-2.html</strong> para mantenerla separada del flujo principal y poder iterarla sin romper el portafolio.</p>
+    </section>
+  </div>
+</body>
+</html>

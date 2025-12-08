@@ -12,7 +12,7 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ projects }) => {
   const [activeCategory, setActiveCategory] = useState<ProjectCategory | 'Todos'>('Todos');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
-  const filteredProjects = activeCategory === 'Todos' 
+  const filteredProjects = activeCategory === 'Todos'
     ? projects.filter(p => !p.isIdeaForge)
     : projects.filter(p => p.category === activeCategory && !p.isIdeaForge);
 
@@ -20,7 +20,7 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ projects }) => {
 
   return (
     <div className="pt-24 md:pt-[110px] pb-12 px-4 md:px-6 max-w-[1200px] mx-auto min-h-screen">
-      
+
       {/* Header */}
       <div className="text-center mb-12 animate-fade-in">
         <div className="inline-block border border-[#b6d0ff] dark:border-brand-primary/50 rounded-full px-6 py-1 mb-6">
@@ -35,6 +35,21 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ projects }) => {
           Explora las diferentes facetas de mi trabajo: Estrategia, Diseño, Websites o Activaciones.
         </p>
       </div>
+
+      {/* Curriculum teaser banner */}
+      <a
+        href="/index-2.html"
+        className="block mb-10 max-w-[960px] mx-auto bg-gradient-to-r from-[#0f4c75] via-[#3282b8] to-[#bbe1fa] dark:from-[#0b1b2b] dark:via-[#102a43] dark:to-[#1f4b99] text-white rounded-2xl shadow-neon border border-white/30 dark:border-white/10 p-4 sm:p-5 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
+      >
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex-1">
+            <p className="text-xs uppercase tracking-[0.3em] font-bold text-white/80">Currículum vital interactivo</p>
+            <h3 className="text-lg sm:text-xl font-bold">Tócame, tócame: conoce más sobre Finlandia y mi trayectoria</h3>
+            <p className="text-sm text-white/90">Explora la versión dinámica de mi CV en una página separada preparada para experimentos.</p>
+          </div>
+          <span className="text-sm font-semibold bg-white/15 rounded-full px-3 py-1">Abrir index-2</span>
+        </div>
+      </a>
 
       {/* Filter */}
       <div className="flex justify-center mb-12 animate-slide-up">

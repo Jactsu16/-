@@ -57,6 +57,7 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
   
   // Dynamic Sections
   const [sections, setSections] = useState<ProjectSection[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<{ name: string; dataUrl: string }[]>([]);
   
   // Section Editor State
   const [currentSectionTitle, setCurrentSectionTitle] = useState('');
@@ -64,6 +65,8 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
   const [textContent, setTextContent] = useState('');
   const [briefContent, setBriefContent] = useState<BriefData>(INITIAL_BRIEF);
   const [flowchartContent, setFlowchartContent] = useState<FlowchartData>(INITIAL_FLOWCHART);
+  const [selectedLibraryImage, setSelectedLibraryImage] = useState('');
+  const [selectedThumbnailName, setSelectedThumbnailName] = useState('');
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,20 +79,35 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, isSection: boolean = false) => {
-    const file = e.target.files?.[0];
-    if (file) {
+  type ImageTarget = 'cover' | 'section' | 'library';
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, target: ImageTarget) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    Array.from(files).forEach((file, index) => {
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
-        if (isSection) {
-          setTextContent(result); // Using textContent to store image base64 for sections
-        } else {
+
+        // Save to shared library
+        setUploadedImages(prev => {
+          const exists = prev.some(img => img.name === file.name);
+          if (exists) return prev;
+          return [...prev, { name: file.name, dataUrl: result }];
+        });
+
+        if (target === 'cover' && index === 0) {
           setThumbnailUrl(result);
+          setSelectedThumbnailName(file.name);
+        }
+
+        if (target === 'section' && index === 0) {
+          setTextContent(result); // Using textContent to store image base64 for sections
         }
       };
       reader.readAsDataURL(file);
-    }
+    });
   };
 
   const handleAddSection = () => {
@@ -154,6 +172,8 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
     setTextContent('');
     setBriefContent(INITIAL_BRIEF);
     setFlowchartContent(INITIAL_FLOWCHART);
+    setSelectedLibraryImage('');
+    setSelectedThumbnailName('');
   };
 
   if (!isAuthenticated) {
@@ -261,10 +281,10 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
            <div className="space-y-1">
              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Imagen de Portada (Subir archivo)</label>
              <div className="flex gap-4 items-center">
-               <input 
+               <input
                  type="file"
                  accept="image/*"
-                 onChange={(e) => handleImageUpload(e, false)}
+                 onChange={(e) => handleImageUpload(e, 'cover')}
                  className="block w-full text-sm text-slate-500 dark:text-slate-400
                    file:mr-4 file:py-2 file:px-4
                    file:rounded-full file:border-0
@@ -279,13 +299,55 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
                    <img src={thumbnailUrl} alt="Preview" className="w-full h-full object-cover" />
                  </div>
                )}
-             </div>
-           </div>
+              </div>
 
-           <label className="flex items-center gap-2 cursor-pointer bg-slate-50 dark:bg-black/20 p-3 rounded-lg border border-transparent dark:border-dark-border hover:border-[#0087fc] transition-colors">
+              {uploadedImages.length > 0 && (
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+                  <label className="font-semibold text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Elegir miniatura de biblioteca</label>
+                  <select
+                    value={selectedThumbnailName}
+                    onChange={(e) => {
+                      const chosen = uploadedImages.find(img => img.name === e.target.value);
+                      setSelectedThumbnailName(e.target.value);
+                      if (chosen) setThumbnailUrl(chosen.dataUrl);
+                    }}
+                    className="flex-1 p-2 bg-white dark:bg-black/40 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white"
+                  >
+                    <option value="">Selecciona una imagen subida</option>
+                    {uploadedImages.map(img => (
+                      <option key={img.name} value={img.name}>{img.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+
+            <label className="flex items-center gap-2 cursor-pointer bg-slate-50 dark:bg-black/20 p-3 rounded-lg border border-transparent dark:border-dark-border hover:border-[#0087fc] transition-colors">
               <input type="checkbox" checked={isIdeaForge} onChange={e => setIsIdeaForge(e.target.checked)} className="rounded text-blue-500 w-5 h-5" />
               <span className="text-slate-700 dark:text-slate-300 font-medium">Guardar en "Fraguas de ideas" (Privado/Borrador)</span>
            </label>
+        </div>
+
+        {/* Image library uploader */}
+        <div className="mb-8 p-4 bg-slate-50 dark:bg-black/20 rounded-xl border border-slate-200 dark:border-dark-border">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Biblioteca de imágenes</h3>
+          <p className="text-sm text-slate-600 dark:text-slate-300 mb-3">Sube imágenes una sola vez y reutilízalas como miniatura o dentro de las secciones.</p>
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(e) => handleImageUpload(e, 'library')}
+            className="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#0076c7] dark:file:bg-white/10 dark:file:text-white"
+          />
+          {uploadedImages.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {uploadedImages.map(img => (
+                <span key={img.name} className="px-3 py-1 text-xs bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-full text-slate-700 dark:text-slate-200">
+                  {img.name}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Added Sections Preview */}
@@ -348,23 +410,57 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
               {currentSectionType === 'IMAGE' && (
                  <div className="space-y-3">
                     <p className="text-sm text-slate-500 dark:text-slate-400">Sube una imagen para esta sección:</p>
-                    <input 
+                    <input
                       type="file"
                       accept="image/*"
-                      onChange={(e) => handleImageUpload(e, true)}
+                      onChange={(e) => handleImageUpload(e, 'section')}
                       className="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#0076c7] dark:file:bg-white/10 dark:file:text-white"
                     />
                     {textContent && textContent.startsWith('data:image') && (
                        <img src={textContent} alt="Preview" className="h-32 rounded border border-slate-200 dark:border-white/20" />
                     )}
                     {/* Fallback for manual URL */}
-                    <input 
+                    <input
                       className="w-full p-2 mt-2 bg-white dark:bg-black/40 border border-slate-200 dark:border-dark-border rounded text-sm text-slate-800 dark:text-white"
                       placeholder="O pega una URL de imagen..."
                       value={textContent}
                       onChange={e => setTextContent(e.target.value)}
                     />
                  </div>
+              )}
+
+              {uploadedImages.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <select
+                      value={selectedLibraryImage}
+                      onChange={(e) => setSelectedLibraryImage(e.target.value)}
+                      className="flex-1 p-2 bg-white dark:bg-black/40 border border-slate-200 dark:border-dark-border rounded-lg text-slate-800 dark:text-white"
+                    >
+                      <option value="">Selecciona una imagen subida</option>
+                      {uploadedImages.map(img => (
+                        <option key={img.name} value={img.name}>{img.name}</option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const chosen = uploadedImages.find(img => img.name === selectedLibraryImage);
+                        if (!chosen) return;
+                        if (currentSectionType === 'IMAGE') {
+                          setTextContent(chosen.dataUrl);
+                        } else {
+                          setTextContent(prev => prev ? `${prev}\n${chosen.name}` : chosen.name);
+                        }
+                      }}
+                      disabled={!selectedLibraryImage}
+                      className="px-4 py-2 rounded-lg bg-[#0087fc] text-white font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Agregar Imágenes Subidas
+                    </button>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Se insertará el archivo en secciones de imagen y el nombre en secciones de texto/brief.</p>
+                </div>
               )}
 
               {currentSectionType === 'BRIEF' && (
