@@ -12,7 +12,7 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ projects }) => {
   const [activeCategory, setActiveCategory] = useState<ProjectCategory | 'Todos'>('Todos');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
-  const filteredProjects = activeCategory === 'Todos' 
+  const filteredProjects = activeCategory === 'Todos'
     ? projects.filter(p => !p.isIdeaForge)
     : projects.filter(p => p.category === activeCategory && !p.isIdeaForge);
 
@@ -20,7 +20,7 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ projects }) => {
 
   return (
     <div className="pt-24 md:pt-[110px] pb-12 px-4 md:px-6 max-w-[1200px] mx-auto min-h-screen">
-      
+
       {/* Header */}
       <div className="text-center mb-12 animate-fade-in">
         <div className="inline-block border border-[#b6d0ff] dark:border-brand-primary/50 rounded-full px-6 py-1 mb-6">
@@ -35,6 +35,14 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ projects }) => {
           Explora las diferentes facetas de mi trabajo: Estrategia, Diseño, Websites o Activaciones.
         </p>
       </div>
+
+      {/* Slim banner CTA */}
+      <a
+        href="/index.2"
+        className="block max-w-3xl mx-auto mb-10 rounded-full bg-gradient-to-r from-[#003d73] via-[#006bb7] to-[#009dff] text-white text-center text-sm md:text-base font-semibold tracking-wide shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all px-6 py-2"
+      >
+        Tócame, tócame — conoce más sobre Finlandia · Currículum vitae interactivo
+      </a>
 
       {/* Filter */}
       <div className="flex justify-center mb-12 animate-slide-up">

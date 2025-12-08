@@ -54,6 +54,9 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
   const [date, setDate] = useState(() => getTodayISO());
   const [thumbnailUrl, setThumbnailUrl] = useState(''); // Stores Base64 string
   const [isIdeaForge, setIsIdeaForge] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState<{ name: string; data: string }[]>([]);
+  const [selectedThumbName, setSelectedThumbName] = useState('');
+  const [selectedSectionImageName, setSelectedSectionImageName] = useState('');
   
   // Dynamic Sections
   const [sections, setSections] = useState<ProjectSection[]>([]);
@@ -64,6 +67,14 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
   const [textContent, setTextContent] = useState('');
   const [briefContent, setBriefContent] = useState<BriefData>(INITIAL_BRIEF);
   const [flowchartContent, setFlowchartContent] = useState<FlowchartData>(INITIAL_FLOWCHART);
+
+  const saveUploadedImage = (fileName: string, data: string) => {
+    setUploadedImages(prev => {
+      const exists = prev.some(img => img.name === fileName);
+      const next = exists ? prev.map(img => img.name === fileName ? { ...img, data } : img) : [...prev, { name: fileName, data }];
+      return next;
+    });
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,12 +95,27 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
         const result = reader.result as string;
         if (isSection) {
           setTextContent(result); // Using textContent to store image base64 for sections
+          setSelectedSectionImageName(file.name);
         } else {
           setThumbnailUrl(result);
+          setSelectedThumbName(file.name);
         }
+        saveUploadedImage(file.name, result);
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleThumbnailSelection = (fileName: string) => {
+    setSelectedThumbName(fileName);
+    const match = uploadedImages.find(img => img.name === fileName);
+    if (match) setThumbnailUrl(match.data);
+  };
+
+  const handleSectionImageSelection = () => {
+    if (!selectedSectionImageName) return;
+    const match = uploadedImages.find(img => img.name === selectedSectionImageName);
+    if (match) setTextContent(match.data);
   };
 
   const handleAddSection = () => {
@@ -261,7 +287,7 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
            <div className="space-y-1">
              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">Imagen de Portada (Subir archivo)</label>
              <div className="flex gap-4 items-center">
-               <input 
+               <input
                  type="file"
                  accept="image/*"
                  onChange={(e) => handleImageUpload(e, false)}
@@ -280,7 +306,27 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
                  </div>
                )}
              </div>
-           </div>
+              {uploadedImages.length > 0 && (
+                <div className="mt-3 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 items-end bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-dark-border rounded-xl p-3">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 ml-1">Elegir miniatura desde imágenes subidas</label>
+                    <select
+                      value={selectedThumbName}
+                      onChange={(e) => handleThumbnailSelection(e.target.value)}
+                      className="w-full p-2 bg-white dark:bg-black/50 border border-slate-200 dark:border-dark-border rounded-lg text-sm text-slate-800 dark:text-white"
+                    >
+                      <option value="">Selecciona un nombre de archivo</option>
+                      {uploadedImages.map(img => (
+                        <option key={img.name} value={img.name}>{img.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="text-[11px] text-slate-500 dark:text-slate-300 sm:text-right">
+                    Usa cualquiera de los nombres guardados para poblar la miniatura sin volver a subirla.
+                  </div>
+                </div>
+              )}
+            </div>
 
            <label className="flex items-center gap-2 cursor-pointer bg-slate-50 dark:bg-black/20 p-3 rounded-lg border border-transparent dark:border-dark-border hover:border-[#0087fc] transition-colors">
               <input type="checkbox" checked={isIdeaForge} onChange={e => setIsIdeaForge(e.target.checked)} className="rounded text-blue-500 w-5 h-5" />
@@ -348,7 +394,7 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
               {currentSectionType === 'IMAGE' && (
                  <div className="space-y-3">
                     <p className="text-sm text-slate-500 dark:text-slate-400">Sube una imagen para esta sección:</p>
-                    <input 
+                    <input
                       type="file"
                       accept="image/*"
                       onChange={(e) => handleImageUpload(e, true)}
@@ -364,6 +410,34 @@ const CPanelView: React.FC<CPanelViewProps> = ({ onAddProject }) => {
                       value={textContent}
                       onChange={e => setTextContent(e.target.value)}
                     />
+                    {uploadedImages.length > 0 && (
+                      <div className="space-y-2 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-dark-border rounded-xl p-3">
+                        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-center">
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 ml-1">Agregar imágenes subidas</label>
+                            <select
+                              value={selectedSectionImageName}
+                              onChange={(e) => setSelectedSectionImageName(e.target.value)}
+                              className="w-full p-2 bg-white dark:bg-black/50 border border-slate-200 dark:border-dark-border rounded-lg text-sm text-slate-800 dark:text-white"
+                            >
+                              <option value="">Elige un nombre guardado</option>
+                              {uploadedImages.map(img => (
+                                <option key={img.name} value={img.name}>{img.name}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleSectionImageSelection}
+                            disabled={!selectedSectionImageName}
+                            className="w-full md:w-auto px-4 py-2 bg-[#0087fc] text-white rounded-lg font-semibold hover:bg-[#005e91] disabled:opacity-40"
+                          >
+                            Agregar Imágenes Subidas
+                          </button>
+                        </div>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-300">Solo listamos los nombres de los archivos que ya subiste para que puedas reutilizarlos en las secciones.</p>
+                      </div>
+                    )}
                  </div>
               )}
 
