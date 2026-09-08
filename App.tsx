@@ -5,7 +5,6 @@ import TopBanner from './components/TopBanner';
 import ProfileView from './components/ProfileView';
 import ChatInterface from './components/ChatInterface';
 import PortfolioView from './components/PortfolioView';
-import CPanelView from './components/CPanelView';
 import Footer from './components/Footer';
 import { ViewState, Project, ImageAsset } from './types';
 
@@ -117,11 +116,6 @@ const App: React.FC = () => {
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
-  const handleAddProject = (newProject: Project) => {
-    setProjects(prev => [newProject, ...prev]);
-    setCurrentView(ViewState.PORTFOLIO); // Redirect to portfolio to see result
-  };
-
   return (
     <div className="bg-white dark:bg-dark-bg min-h-screen relative font-inter transition-colors duration-300 flex flex-col">
       {/* Background decoration */}
@@ -140,13 +134,6 @@ const App: React.FC = () => {
         {currentView === ViewState.CHATBOT && <ChatInterface />}
         {currentView === ViewState.PORTFOLIO && (
           <PortfolioView projects={projects} imageLibrary={imageLibrary} />
-        )}
-        {currentView === ViewState.CPANEL && (
-          <CPanelView
-            onAddProject={handleAddProject}
-            imageLibrary={imageLibrary}
-            onUpdateImageLibrary={setImageLibrary}
-          />
         )}
       </div>
 

@@ -17,8 +17,6 @@ const NavBar: React.FC<NavBarProps> = ({ currentView, setView, isDarkMode, toggl
         return 'Portafolio';
       case ViewState.CHATBOT:
         return 'ChatBot - Jactsu';
-      case ViewState.CPANEL:
-        return 'Panel de Control';
       case ViewState.HOME:
       default:
         return 'Buyer Persona';
@@ -67,16 +65,6 @@ const NavBar: React.FC<NavBarProps> = ({ currentView, setView, isDarkMode, toggl
             }`}
           >
             ChatBot
-          </button>
-
-          <button 
-            onClick={() => setView(ViewState.CPANEL)}
-            className={`hidden sm:inline px-2 text-[10px] font-mono opacity-50 hover:opacity-100 ${
-               currentView === ViewState.CPANEL ? 'text-brand-primary font-bold opacity-100' : 'text-[#005e91] dark:text-dark-subtext'
-            }`}
-            title="Panel de Control"
-          >
-            CP
           </button>
 
           {/* Dark Mode Toggle */}

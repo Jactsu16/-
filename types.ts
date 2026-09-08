@@ -2,8 +2,7 @@
 export enum ViewState {
   HOME = 'HOME',
   PORTFOLIO = 'PORTFOLIO',
-  CHATBOT = 'CHATBOT',
-  CPANEL = 'CPANEL'
+  CHATBOT = 'CHATBOT'
 }
 
 export interface Message {
