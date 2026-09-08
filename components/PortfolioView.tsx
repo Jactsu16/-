@@ -33,7 +33,7 @@ const CASES: CaseStudy[] = [
     category: 'Audiovisual',
     filters: ['Mercadeo', 'Audiovisual'],
     description: 'Producción audiovisual, cobertura de eventos y apoyo en activaciones de marca. Una experiencia que me permitió llevar las ideas del papel a la realidad, trabajando en equipo en un entorno real de medios.',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=1600&q=88',
+    thumbnailUrl: 'uploads/tvn-studio.webp',
     secondaryImage: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=900&q=88',
     note: 'Ideas que conectan personas',
   },
@@ -45,7 +45,7 @@ const CASES: CaseStudy[] = [
     category: 'E-commerce',
     filters: ['Mercadeo', 'E-commerce'],
     description: 'Creación de contenido, gestión de tienda online y estrategia digital para una marca de productos K-pop. Un proyecto que une creatividad, fandom y estrategia para conectar con una comunidad real.',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1606761568499-6d2451b23c66?auto=format&fit=crop&w=1600&q=88',
+    thumbnailUrl: 'uploads/hallyu-store.webp',
     note: 'Cultura, ideas y comunidad',
   },
   {
@@ -56,7 +56,7 @@ const CASES: CaseStudy[] = [
     category: 'Diseño',
     filters: ['Mercadeo', 'Diseño'],
     description: 'Desarrollo de identidad visual, piezas publicitarias y dirección creativa para proyectos de marca. Convertir ideas en sistemas visuales que comunican, inspiran y generan impacto.',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=1600&q=88',
+    thumbnailUrl: 'uploads/express-branding.webp',
     note: 'Estrategia, diseño e ideas reales',
   },
 ];
