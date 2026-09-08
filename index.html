@@ -685,85 +685,145 @@
     }
 
     function renderPortfolio() {
-      processSchedules();
       const container = document.getElementById('portfolioSection');
-      const liveProjects = visibleProjects();
-      const ideaForge = liveProjects.filter(p => p.category === 'fraguas' || p.isIdeaForge).sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0));
-      let filtered = liveProjects.filter(p => p.category !== 'fraguas' && !p.isIdeaForge);
-      filtered = filtered.sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+      const portfolioCases = [
+        {
+          id: 'tvn',
+          number: '01',
+          title: 'TVN',
+          subtitle: 'Práctica profesional · Mercadeo y activaciones',
+          category: 'Audiovisual',
+          filters: ['Mercadeo', 'Audiovisual'],
+          description: 'Producción audiovisual, cobertura de eventos y apoyo en activaciones de marca. Una experiencia que me permitió llevar las ideas del papel a la realidad, trabajando en equipo en un entorno real de medios.',
+          thumbnailUrl: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=1600&q=88',
+          secondaryImage: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=900&q=88',
+          note: 'Ideas que conectan personas',
+          sections: [{ id: 'tvn-1', title: 'Experiencia', type: 'TEXT', content: 'Producción audiovisual, cobertura de eventos y apoyo en activaciones de marca para conectar ideas con audiencias reales.' }],
+          tags: ['Audiovisual', 'Mercadeo', 'Experiencia real']
+        },
+        {
+          id: 'hallyu',
+          number: '02',
+          title: 'HALLYU.KSTORE',
+          subtitle: 'Contenido y e-commerce',
+          category: 'E-commerce',
+          filters: ['Mercadeo', 'E-commerce'],
+          description: 'Creación de contenido, gestión de tienda online y estrategia digital para una marca de productos K-pop. Un proyecto que une creatividad, fandom y estrategia para conectar con una comunidad real.',
+          thumbnailUrl: 'https://images.unsplash.com/photo-1606761568499-6d2451b23c66?auto=format&fit=crop&w=1600&q=88',
+          note: 'Cultura, ideas y comunidad',
+          sections: [{ id: 'hallyu-1', title: 'Proyecto', type: 'TEXT', content: 'Contenido y operación de e-commerce con una identidad cercana a la cultura K-pop y a su comunidad.' }],
+          tags: ['E-commerce', 'Contenido', 'Comunidad']
+        },
+        {
+          id: 'express',
+          number: '03',
+          title: 'EXPRESSCREATIVA',
+          subtitle: 'Branding y dirección creativa',
+          category: 'Diseño',
+          filters: ['Mercadeo', 'Diseño'],
+          description: 'Desarrollo de identidad visual, piezas publicitarias y dirección creativa para proyectos de marca. Convertir ideas en sistemas visuales que comunican, inspiran y generan impacto.',
+          thumbnailUrl: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=1600&q=88',
+          note: 'Estrategia, diseño e ideas reales',
+          sections: [{ id: 'express-1', title: 'Identidad visual', type: 'TEXT', content: 'Dirección creativa, branding y piezas publicitarias convertidas en un sistema visual coherente y funcional.' }],
+          tags: ['Branding', 'Diseño', 'Dirección creativa']
+        }
+      ];
+    
+      const arrow = '<span aria-hidden="true" class="text-2xl leading-none">→</span>';
+      const projectMarkup = (project, index) => {
+        const reverse = index % 2 === 1;
+        const textOrder = reverse ? 'lg:order-2' : 'lg:order-1';
+        const imageOrder = reverse ? 'lg:order-1' : 'lg:order-2';
+        const imageMarkup = `
+          <div class="${imageOrder} relative">
+            <div class="relative ${index === 0 ? 'lg:ml-6' : ''}">
+              <div class="overflow-hidden bg-slate-100 dark:bg-dark-card shadow-[0_24px_70px_rgba(0,94,145,0.12)] aspect-[16/10]">
+                <img src="${project.thumbnailUrl}" alt="${project.title}" class="h-full w-full object-cover transition-transform duration-700 hover:scale-[1.025]" loading="${index === 0 ? 'eager' : 'lazy'}">
+              </div>
+              ${project.secondaryImage ? `<div class="hidden md:block absolute -bottom-8 -left-8 w-[38%] aspect-square border-4 border-white dark:border-dark-bg shadow-xl overflow-hidden"><img src="${project.secondaryImage}" alt="Detalle audiovisual de ${project.title}" class="w-full h-full object-cover"></div>` : ''}
+              <p class="hidden xl:block absolute ${reverse ? '-left-20' : '-right-20'} bottom-6 w-20 text-[11px] uppercase tracking-[0.18em] leading-4 text-brand-primary [writing-mode:vertical-rl]">${project.note}</p>
+            </div>
+          </div>`;
+    
+        const textMarkup = `
+          <div class="${textOrder} flex flex-col justify-center ${reverse ? 'lg:pl-10' : 'lg:pr-10'}">
+            <div class="flex items-center gap-5 mb-2">
+              <span class="text-[72px] md:text-[96px] font-black leading-none tracking-[-0.07em] text-brand-primary">${project.number}</span>
+              <span class="h-px flex-1 bg-brand-primary/70"></span>
+            </div>
+            <h2 class="text-3xl md:text-4xl font-black tracking-tight text-brand-dark dark:text-white">${project.title}</h2>
+            <p class="mt-1 text-base font-bold text-brand-dark dark:text-brand-secondary">${project.subtitle}</p>
+            <p class="mt-5 max-w-md text-[15px] leading-7 text-slate-600 dark:text-dark-subtext">${project.description}</p>
+            <button type="button" data-open-case="${project.id}" class="mt-6 inline-flex w-fit items-center gap-4 font-bold text-sm text-brand-primary group">
+              <span class="grid h-11 w-11 place-items-center rounded-full border border-brand-primary transition-all group-hover:bg-brand-primary group-hover:text-white">${arrow}</span>
+              <span>Ver proyecto</span>
+            </button>
+          </div>`;
+    
+        return `
+          <article data-portfolio-case data-filters="${project.filters.join('|')}" class="portfolio-case grid grid-cols-1 gap-10 lg:grid-cols-[0.82fr_1.45fr] lg:gap-12 items-center py-14 md:py-20 border-b border-brand-primary/10 last:border-0">
+            ${textMarkup}
+            ${imageMarkup}
+          </article>`;
+      };
+    
       container.innerHTML = `
-        <div class="text-center mb-12">
-          <div class="inline-block border border-[#b6d0ff] dark:border-brand-primary/50 rounded-full px-6 py-1 mb-6">
-            <span class="text-xs font-bold tracking-[0.2em] text-brand-dark dark:text-brand-primary uppercase">Jamileth J. Guerra</span>
+        <div class="relative pt-2 md:pt-5">
+          <div class="hidden 2xl:block pointer-events-none absolute -left-28 top-56 text-[96px] leading-none font-black tracking-[0.08em] text-blue-100/80 dark:text-white/5 [writing-mode:vertical-rl] rotate-180">PORTAFOLIO</div>
+          <header class="text-center pt-4 md:pt-8">
+            <div class="inline-flex rounded-full border border-[#b6d0ff] dark:border-brand-primary/50 px-6 py-2">
+              <span class="text-[11px] font-black tracking-[0.24em] text-brand-dark dark:text-brand-primary uppercase">Jamileth J. Guerra</span>
+            </div>
+            <h1 class="mx-auto mt-5 max-w-5xl text-4xl md:text-6xl lg:text-[68px] font-black leading-[0.98] tracking-[-0.055em] text-brand-dark dark:text-white">
+              Todas las ideas = <span class="text-brand-primary">Pensar, Crear &amp;<br class="hidden md:block"> Transformar</span>
+            </h1>
+            <p class="mt-6 text-base md:text-lg text-slate-600 dark:text-dark-subtext">Publicidad, producción audiovisual, estrategia y experiencias de marca.</p>
+          </header>
+    
+          <div class="mt-10 flex justify-center">
+            <div id="portfolioFilters" class="flex max-w-full overflow-x-auto rounded-full border border-[#b6d0ff] bg-white p-1 shadow-sm dark:border-dark-border dark:bg-dark-card">
+              ${['Todos', 'Mercadeo', 'Audiovisual', 'Diseño', 'E-commerce'].map((filter, index) => `<button type="button" data-filter="${filter}" class="portfolio-filter whitespace-nowrap rounded-full px-5 py-2 text-xs md:text-sm font-bold transition-all ${index === 0 ? 'bg-brand-primary text-white shadow-md' : 'text-brand-dark dark:text-dark-subtext hover:bg-blue-50 dark:hover:bg-white/10'}">${filter}</button>`).join('')}
+            </div>
           </div>
-          <h1 class="text-4xl md:text-6xl font-bold text-brand-dark dark:text-white mb-6 leading-tight">Todas las ideas = <span class="text-brand-primary">Pensar, Crear & Transformar</span></h1>
-          <p class="text-slate-600 dark:text-dark-subtext max-w-2xl mx-auto text-lg">Explora las diferentes facetas de mi trabajo: Estrategia, Diseño, Websites o Activaciones.</p>
-        </div>
-        <div class="flex justify-center mb-12">
-          <div class="bg-white dark:bg-dark-card border border-[#b6d0ff] dark:border-dark-border rounded-full p-1.5 flex flex-wrap justify-center gap-1 shadow-sm" id="filterButtons"></div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20" id="projectGrid"></div>
-        <div class="border-t border-[#b6d0ff] dark:border-dark-border pt-16">
-          <h2 class="text-3xl font-bold text-brand-dark dark:text-white mb-8 text-center italic font-playfair">"Fraguas de ideas"</h2>
-          <p class="text-center text-slate-500 dark:text-dark-subtext mb-10 max-w-2xl mx-auto">El depósito de análisis, investigaciones e hipótesis que alimentan futuras estrategias.</p>
-          ${ideaForge.length === 0 ? `<div class="text-center py-12 bg-slate-50 dark:bg-dark-card/30 rounded-2xl border border-dashed border-slate-300 dark:border-dark-border"><p class="text-slate-400 dark:text-dark-subtext">No hay documentos en la fragua aún.</p></div>` : `<div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="ideaGrid"></div>`}
+    
+          <div id="editorialPortfolioList" class="mt-6">
+            ${portfolioCases.map(projectMarkup).join('')}
+          </div>
+    
+          <footer class="pb-4 pt-10 text-center">
+            <p class="text-sm text-slate-600 dark:text-dark-subtext">Soy estudiante de Publicidad y disfruto transformar ideas en trabajo real.</p>
+            <a href="mailto:jamileth.guerra@up.ac.pa" class="mt-4 inline-flex items-center gap-3 rounded-full bg-brand-primary px-7 py-3 text-sm font-bold text-white shadow-lg transition-transform hover:-translate-y-0.5">Hablemos ${arrow}</a>
+            <div class="mt-10 flex items-center justify-between text-[9px] uppercase tracking-[0.22em] text-brand-primary/80">
+              <span class="flex items-center gap-3"><span class="h-px w-12 bg-brand-primary"></span>Gracias por estar aquí</span>
+              <span>Crear · aprender · transformar · seguir</span>
+            </div>
+          </footer>
         </div>`;
-
-      const categories = ['Todos', ...CATEGORY_OPTIONS.map(formatCategory)];
-      const filterButtons = document.getElementById('filterButtons');
-      categories.forEach((cat, idx) => {
-        const btn = document.createElement('button');
-        btn.textContent = cat === 'Todos' ? 'Todos los proyectos' : cat;
-        btn.className = 'filter-btn px-4 py-2 rounded-full text-sm font-semibold transition-all text-brand-dark dark:text-dark-subtext';
-        btn.dataset.category = cat;
-        filterButtons.appendChild(btn);
-        if (idx === 0) {
-          btn.classList.add('bg-brand-primary','text-white','shadow-md');
-        }
+    
+      const filterBar = document.getElementById('portfolioFilters');
+      filterBar.addEventListener('click', event => {
+        const button = event.target.closest('[data-filter]');
+        if (!button) return;
+        const filter = button.dataset.filter;
+        filterBar.querySelectorAll('.portfolio-filter').forEach(item => {
+          item.classList.remove('bg-brand-primary', 'text-white', 'shadow-md');
+          item.classList.add('text-brand-dark', 'dark:text-dark-subtext');
+        });
+        button.classList.add('bg-brand-primary', 'text-white', 'shadow-md');
+        button.classList.remove('text-brand-dark', 'dark:text-dark-subtext');
+        document.querySelectorAll('[data-portfolio-case]').forEach(card => {
+          const matches = filter === 'Todos' || card.dataset.filters.split('|').includes(filter);
+          card.classList.toggle('hidden', !matches);
+        });
       });
-
-      const grid = document.getElementById('projectGrid');
-      function paintGrid(active='Todos') {
-        const normalized = normalizeCategory(active);
-        if (normalized === 'fraguas') {
-          grid.innerHTML = ideaForge.map((p,i) => buildProjectCard(p,i)).join('');
-          return;
-        }
-        grid.innerHTML = filtered.filter(p => active==='Todos' || normalizeCategory(p.category)===normalized).map((p,i) => buildProjectCard(p,i)).join('');
-      }
-      paintGrid();
-      filterButtons.addEventListener('click', (e) => {
-        const btn = e.target.closest('.filter-btn');
-        if (!btn) return;
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('bg-brand-primary','text-white','shadow-md'));
-        btn.classList.add('bg-brand-primary','text-white','shadow-md');
-        paintGrid(btn.dataset.category);
-      });
-
-      grid.addEventListener('click', (e) => {
-        const card = e.target.closest('[data-id]');
-        if (!card) return;
-        const project = projects.find(p => p.id === card.dataset.id);
+    
+      container.addEventListener('click', event => {
+        const button = event.target.closest('[data-open-case]');
+        if (!button) return;
+        const project = portfolioCases.find(item => item.id === button.dataset.openCase);
         openModal(project);
       });
-
-      if (ideaForge.length) {
-        const ideaGrid = document.getElementById('ideaGrid');
-        ideaGrid.innerHTML = ideaForge.map(idea => `
-          <div data-id="${idea.id}" class="bg-white dark:bg-dark-card p-6 rounded-xl border border-slate-100 dark:border-dark-border shadow-sm hover:border-brand-primary cursor-pointer transition-all">
-            <div class="mb-4 text-brand-primary"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div>
-            <h4 class="font-bold text-brand-dark dark:text-white mb-2">${idea.title}</h4>
-            <p class="text-xs text-slate-500 dark:text-dark-subtext line-clamp-3">${idea.subtitle}</p>
-          </div>`).join('');
-        ideaGrid.addEventListener('click', (e) => {
-          const card = e.target.closest('[data-id]');
-          if (!card) return;
-          const project = projects.find(p => p.id === card.dataset.id);
-          openModal(project);
-        });
-      }
     }
-
     function openModal(project) {
       const modal = document.getElementById('projectModal');
       const content = document.getElementById('modalContent');

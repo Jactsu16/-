@@ -1,300 +1,179 @@
 
-import React, { useMemo, useState } from 'react';
-import { Project, ProjectCategory, ProjectSection, BriefData, FlowchartData, ImageAsset } from '../types';
+import React, { useState } from 'react';
+import { ImageAsset, Project } from '../types';
 
 interface PortfolioViewProps {
   projects: Project[];
   imageLibrary: ImageAsset[];
 }
 
-const CATEGORIES: (ProjectCategory | 'Todos')[] = ['Todos', 'Estrategia', 'Diseño', 'Website', 'Varios'];
+type PortfolioFilter = 'Todos' | 'Mercadeo' | 'Audiovisual' | 'Diseño' | 'E-commerce';
 
-const extractTokenName = (value: string) => {
-  const match = value.trim().match(/^@(.+)$/);
-  return match ? match[1] : null;
-};
+interface CaseStudy {
+  id: string;
+  number: string;
+  title: string;
+  subtitle: string;
+  category: Exclude<PortfolioFilter, 'Todos'>;
+  filters: PortfolioFilter[];
+  description: string;
+  thumbnailUrl: string;
+  secondaryImage?: string;
+  note: string;
+}
 
-const PortfolioView: React.FC<PortfolioViewProps> = ({ projects, imageLibrary }) => {
-  const [activeCategory, setActiveCategory] = useState<ProjectCategory | 'Todos'>('Todos');
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+const FILTERS: PortfolioFilter[] = ['Todos', 'Mercadeo', 'Audiovisual', 'Diseño', 'E-commerce'];
 
-  const imageMap = useMemo(() => {
-    const map: Record<string, string> = {};
-    imageLibrary.forEach(asset => {
-      map[asset.name] = asset.data;
-    });
-    return map;
-  }, [imageLibrary]);
+const CASES: CaseStudy[] = [
+  {
+    id: 'tvn',
+    number: '01',
+    title: 'TVN',
+    subtitle: 'Práctica profesional · Mercadeo y activaciones',
+    category: 'Audiovisual',
+    filters: ['Mercadeo', 'Audiovisual'],
+    description: 'Producción audiovisual, cobertura de eventos y apoyo en activaciones de marca. Una experiencia que me permitió llevar las ideas del papel a la realidad, trabajando en equipo en un entorno real de medios.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=1600&q=88',
+    secondaryImage: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=900&q=88',
+    note: 'Ideas que conectan personas',
+  },
+  {
+    id: 'hallyu',
+    number: '02',
+    title: 'HALLYU.KSTORE',
+    subtitle: 'Contenido y e-commerce',
+    category: 'E-commerce',
+    filters: ['Mercadeo', 'E-commerce'],
+    description: 'Creación de contenido, gestión de tienda online y estrategia digital para una marca de productos K-pop. Un proyecto que une creatividad, fandom y estrategia para conectar con una comunidad real.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1606761568499-6d2451b23c66?auto=format&fit=crop&w=1600&q=88',
+    note: 'Cultura, ideas y comunidad',
+  },
+  {
+    id: 'express',
+    number: '03',
+    title: 'EXPRESSCREATIVA',
+    subtitle: 'Branding y dirección creativa',
+    category: 'Diseño',
+    filters: ['Mercadeo', 'Diseño'],
+    description: 'Desarrollo de identidad visual, piezas publicitarias y dirección creativa para proyectos de marca. Convertir ideas en sistemas visuales que comunican, inspiran y generan impacto.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=1600&q=88',
+    note: 'Estrategia, diseño e ideas reales',
+  },
+];
 
-  const renderTextWithImages = (text: string) => {
-    const tokenRegex = /@[^\s]+/g;
-    const parts = text.split(tokenRegex);
-    const matches = text.match(tokenRegex) || [];
+const Arrow: React.FC = () => <span aria-hidden="true" className="text-2xl leading-none">→</span>;
 
-    const elements: React.ReactNode[] = [];
+const PortfolioView: React.FC<PortfolioViewProps> = () => {
+  const [activeFilter, setActiveFilter] = useState<PortfolioFilter>('Todos');
+  const [selectedCase, setSelectedCase] = useState<CaseStudy | null>(null);
 
-    parts.forEach((part, idx) => {
-      if (part) {
-        elements.push(<span key={`txt-${idx}`}>{part}</span>);
-      }
-      const token = matches[idx];
-      if (token) {
-        const tokenName = extractTokenName(token);
-        const src = tokenName ? imageMap[tokenName] : undefined;
-        if (src) {
-          elements.push(
-            <img
-              key={`img-${idx}`}
-              src={src}
-              alt={tokenName}
-              className="my-4 rounded-xl shadow-md max-h-72"
-            />
-          );
-        } else {
-          elements.push(
-            <span key={`unknown-${idx}`} className="text-red-500 font-semibold">{token}</span>
-          );
-        }
-      }
-    });
-
-    return elements;
-  };
-
-  const getThumbPosition = (project: Project) => `${project.thumbnailFocus?.x ?? 50}% ${project.thumbnailFocus?.y ?? 50}%`;
-
-  const filteredProjects = activeCategory === 'Todos' 
-    ? projects.filter(p => !p.isIdeaForge)
-    : projects.filter(p => p.category === activeCategory && !p.isIdeaForge);
-
-  const ideaForgeProjects = projects.filter(p => p.isIdeaForge);
+  const visibleCases = CASES.filter(item => activeFilter === 'Todos' || item.filters.includes(activeFilter));
 
   return (
-    <div className="pt-24 md:pt-[110px] pb-12 px-4 md:px-6 max-w-[1200px] mx-auto min-h-screen">
-      
-      {/* Header */}
-      <div className="text-center mb-12 animate-fade-in">
-        <div className="inline-block border border-[#b6d0ff] dark:border-brand-primary/50 rounded-full px-6 py-1 mb-6">
-          <span className="text-xs font-bold tracking-[0.2em] text-[#005e91] dark:text-brand-primary uppercase">
-            Jamileth J. Guerra
-          </span>
+    <div className="relative pt-24 md:pt-[110px] pb-12 px-4 md:px-6 max-w-[1200px] mx-auto min-h-screen">
+      <div className="hidden 2xl:block pointer-events-none absolute -left-28 top-64 text-[96px] leading-none font-black tracking-[0.08em] text-blue-100/80 dark:text-white/5 [writing-mode:vertical-rl] rotate-180">
+        PORTAFOLIO
+      </div>
+
+      <header className="text-center pt-4 md:pt-8">
+        <div className="inline-flex rounded-full border border-[#b6d0ff] dark:border-brand-primary/50 px-6 py-2">
+          <span className="text-[11px] font-black tracking-[0.24em] text-[#005e91] dark:text-brand-primary uppercase">Jamileth J. Guerra</span>
         </div>
-        <h1 className="text-4xl md:text-6xl font-bold text-[#005e91] dark:text-white mb-6 leading-tight">
-          Todas las ideas = <span className="text-[#0087fc] dark:text-brand-primary">Pensar, Crear & Transformar</span>
+        <h1 className="mx-auto mt-5 max-w-5xl text-4xl md:text-6xl lg:text-[68px] font-black leading-[0.98] tracking-[-0.055em] text-[#005e91] dark:text-white">
+          Todas las ideas = <span className="text-[#0087fc]">Pensar, Crear &amp;<br className="hidden md:block" /> Transformar</span>
         </h1>
-        <p className="text-slate-600 dark:text-dark-subtext max-w-2xl mx-auto text-lg">
-          Explora las diferentes facetas de mi trabajo: Estrategia, Diseño, Websites o Activaciones.
+        <p className="mt-6 text-base md:text-lg text-slate-600 dark:text-dark-subtext">
+          Publicidad, producción audiovisual, estrategia y experiencias de marca.
         </p>
-      </div>
+      </header>
 
-      {/* Filter */}
-      <div className="flex justify-center mb-12 animate-slide-up">
-        <div className="bg-white dark:bg-dark-card border border-[#b6d0ff] dark:border-dark-border rounded-full p-1.5 flex flex-wrap justify-center gap-1 shadow-sm">
-           {CATEGORIES.map((cat) => (
-             <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
-                  activeCategory === cat
-                    ? 'bg-[#0087fc] text-white shadow-md'
-                    : 'text-[#005e91] dark:text-dark-subtext hover:bg-blue-50 dark:hover:bg-white/10'
-                }`}
-             >
-                {cat === 'Todos' ? 'Todos los proyectos' : cat}
-             </button>
-           ))}
+      <div className="mt-10 flex justify-center">
+        <div className="flex max-w-full overflow-x-auto rounded-full border border-[#b6d0ff] bg-white p-1 shadow-sm dark:border-dark-border dark:bg-dark-card">
+          {FILTERS.map(filter => (
+            <button
+              key={filter}
+              type="button"
+              onClick={() => setActiveFilter(filter)}
+              className={'whitespace-nowrap rounded-full px-5 py-2 text-xs md:text-sm font-bold transition-all ' + (
+                activeFilter === filter
+                  ? 'bg-[#0087fc] text-white shadow-md'
+                  : 'text-[#005e91] dark:text-dark-subtext hover:bg-blue-50 dark:hover:bg-white/10'
+              )}
+            >
+              {filter}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Projects Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
-        {filteredProjects.map((project, idx) => (
-          <div 
-            key={project.id} 
-            className="group cursor-pointer"
-            onClick={() => setSelectedProject(project)}
-            style={{ animationDelay: `${idx * 100}ms` }}
-          >
-            {/* Card Image */}
-            <div className="bg-slate-100 dark:bg-dark-card rounded-2xl overflow-hidden aspect-[4/3] mb-4 relative shadow-sm border border-transparent dark:border-dark-border group-hover:shadow-xl transition-all duration-300">
-               <img
-                 src={project.thumbnailUrl}
-                 alt={project.title}
-                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                 style={{ objectPosition: getThumbPosition(project) }}
-               />
-               <div className="absolute top-4 left-4">
-                 <span className="bg-white/90 dark:bg-black/80 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-[#005e91] dark:text-brand-primary border border-white/20">
-                    {project.category}
-                 </span>
-               </div>
-            </div>
-            
-            {/* Card Content */}
-            <div className="animate-slide-up">
-               <h3 className="text-2xl font-bold text-[#005e91] dark:text-white mb-2 group-hover:text-[#0087fc] transition-colors">{project.title}</h3>
-               <p className="text-slate-600 dark:text-dark-subtext text-sm leading-relaxed mb-3 line-clamp-2">
-                 {project.subtitle}
-               </p>
-               <div className="flex gap-2">
-                 {project.tags.map((tag, tIdx) => (
-                   <span key={tIdx} className="bg-blue-50 dark:bg-white/5 text-[#0076c7] dark:text-brand-secondary text-xs px-2 py-1 rounded font-medium">
-                     {tag}
-                   </span>
-                 ))}
-               </div>
+      <div className="mt-6">
+        {visibleCases.map((project, index) => {
+          const reverse = index % 2 === 1;
+          return (
+            <article
+              key={project.id}
+              className="grid grid-cols-1 gap-10 lg:grid-cols-[0.82fr_1.45fr] lg:gap-12 items-center py-14 md:py-20 border-b border-[#0087fc]/10 last:border-0"
+            >
+              <div className={(reverse ? 'lg:order-2 lg:pl-10' : 'lg:order-1 lg:pr-10') + ' flex flex-col justify-center'}>
+                <div className="flex items-center gap-5 mb-2">
+                  <span className="text-[72px] md:text-[96px] font-black leading-none tracking-[-0.07em] text-[#0087fc]">{project.number}</span>
+                  <span className="h-px flex-1 bg-[#0087fc]/70" />
+                </div>
+                <h2 className="text-3xl md:text-4xl font-black tracking-tight text-[#005e91] dark:text-white">{project.title}</h2>
+                <p className="mt-1 text-base font-bold text-[#005e91] dark:text-brand-secondary">{project.subtitle}</p>
+                <p className="mt-5 max-w-md text-[15px] leading-7 text-slate-600 dark:text-dark-subtext">{project.description}</p>
+                <button type="button" onClick={() => setSelectedCase(project)} className="mt-6 inline-flex w-fit items-center gap-4 font-bold text-sm text-[#0087fc] group">
+                  <span className="grid h-11 w-11 place-items-center rounded-full border border-[#0087fc] transition-all group-hover:bg-[#0087fc] group-hover:text-white"><Arrow /></span>
+                  <span>Ver proyecto</span>
+                </button>
+              </div>
+
+              <div className={reverse ? 'lg:order-1 relative' : 'lg:order-2 relative'}>
+                <div className="relative">
+                  <div className="overflow-hidden bg-slate-100 dark:bg-dark-card shadow-[0_24px_70px_rgba(0,94,145,0.12)] aspect-[16/10]">
+                    <img src={project.thumbnailUrl} alt={project.title} className="h-full w-full object-cover transition-transform duration-700 hover:scale-[1.025]" loading={index === 0 ? 'eager' : 'lazy'} />
+                  </div>
+                  {project.secondaryImage && (
+                    <div className="hidden md:block absolute -bottom-8 -left-8 w-[38%] aspect-square border-4 border-white dark:border-dark-bg shadow-xl overflow-hidden">
+                      <img src={project.secondaryImage} alt={'Detalle audiovisual de ' + project.title} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <p className={(reverse ? '-left-20' : '-right-20') + ' hidden xl:block absolute bottom-6 w-20 text-[11px] uppercase tracking-[0.18em] leading-4 text-[#0087fc] [writing-mode:vertical-rl]'}>
+                    {project.note}
+                  </p>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+
+      <footer className="pb-4 pt-10 text-center">
+        <p className="text-sm text-slate-600 dark:text-dark-subtext">Soy estudiante de Publicidad y disfruto transformar ideas en trabajo real.</p>
+        <a href="mailto:jamileth.guerra@up.ac.pa" className="mt-4 inline-flex items-center gap-3 rounded-full bg-[#0087fc] px-7 py-3 text-sm font-bold text-white shadow-lg transition-transform hover:-translate-y-0.5">
+          Hablemos <Arrow />
+        </a>
+        <div className="mt-10 flex items-center justify-between text-[9px] uppercase tracking-[0.22em] text-[#0087fc]/80">
+          <span className="flex items-center gap-3"><span className="h-px w-12 bg-[#0087fc]" />Gracias por estar aquí</span>
+          <span>Crear · aprender · transformar · seguir</span>
+        </div>
+      </footer>
+
+      {selectedCase && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <button type="button" aria-label="Cerrar proyecto" className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-md" onClick={() => setSelectedCase(null)} />
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white dark:bg-black border border-[#b6d0ff] dark:border-white/20 shadow-2xl">
+            <button type="button" onClick={() => setSelectedCase(null)} className="absolute right-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full bg-white/90 text-[#005e91] shadow">×</button>
+            <img src={selectedCase.thumbnailUrl} alt={selectedCase.title} className="h-64 md:h-80 w-full object-cover" />
+            <div className="p-7 md:p-10">
+              <span className="text-xs font-black uppercase tracking-[0.2em] text-[#0087fc]">{selectedCase.category}</span>
+              <h2 className="mt-3 text-4xl md:text-5xl font-black text-[#005e91] dark:text-white">{selectedCase.title}</h2>
+              <p className="mt-3 text-lg font-bold text-[#005e91] dark:text-brand-secondary">{selectedCase.subtitle}</p>
+              <p className="mt-6 max-w-2xl text-base leading-8 text-slate-600 dark:text-dark-subtext">{selectedCase.description}</p>
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* Fraguas de Ideas Section */}
-      <div className="border-t border-[#b6d0ff] dark:border-dark-border pt-16">
-         <h2 className="text-3xl font-bold text-[#005e91] dark:text-white mb-8 text-center italic font-playfair">
-           "Fraguas de ideas"
-         </h2>
-         <p className="text-center text-slate-500 dark:text-dark-subtext mb-10 max-w-2xl mx-auto">
-            El depósito de análisis, investigaciones e hipótesis que alimentan futuras estrategias.
-         </p>
-         
-         {ideaForgeProjects.length === 0 ? (
-            <div className="text-center py-12 bg-slate-50 dark:bg-dark-card/30 rounded-2xl border border-dashed border-slate-300 dark:border-dark-border">
-               <p className="text-slate-400 dark:text-dark-subtext">No hay documentos en la fragua aún.</p>
-            </div>
-         ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-               {ideaForgeProjects.map(idea => (
-                 <div key={idea.id} onClick={() => setSelectedProject(idea)} className="bg-white dark:bg-dark-card p-6 rounded-xl border border-slate-100 dark:border-dark-border shadow-sm hover:border-[#0087fc] cursor-pointer transition-all">
-                    <div className="mb-4 text-[#0087fc]">
-                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
-                    </div>
-                    <h4 className="font-bold text-[#005e91] dark:text-white mb-2">{idea.title}</h4>
-                    <p className="text-xs text-slate-500 dark:text-dark-subtext line-clamp-3">{idea.subtitle}</p>
-                 </div>
-               ))}
-            </div>
-         )}
-      </div>
-
-      {/* Project Detail Modal */}
-      {selectedProject && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-           {/* Backdrop */}
-           <div 
-             className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-md transition-opacity"
-             onClick={() => setSelectedProject(null)}
-           />
-           
-           {/* Modal Content */}
-           <div className="relative bg-white dark:bg-black border border-[#b6d0ff] dark:border-white/20 w-full max-w-4xl max-h-[90vh] rounded-3xl shadow-2xl overflow-y-auto animate-slide-up">
-              
-              {/* Close Button */}
-              <button 
-                onClick={() => setSelectedProject(null)}
-                className="absolute top-4 right-4 z-10 p-2 bg-white/50 dark:bg-black/50 rounded-full hover:bg-white dark:hover:bg-dark-card transition-colors"
-              >
-                <svg className="w-6 h-6 text-[#005e91] dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
-
-              {/* Cover Image */}
-              <div className="h-64 md:h-80 w-full relative">
-                 <img
-                   src={selectedProject.thumbnailUrl}
-                   alt={selectedProject.title}
-                   className="w-full h-full object-cover"
-                   style={{ objectPosition: getThumbPosition(selectedProject) }}
-                 />
-                 <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-black to-transparent" />
-                 <div className="absolute bottom-6 left-6 md:left-10">
-                    <span className="bg-[#0087fc] text-white text-xs font-bold px-3 py-1 rounded mb-3 inline-block">
-                      {selectedProject.category}
-                    </span>
-                    <h2 className="text-3xl md:text-5xl font-bold text-[#005e91] dark:text-white leading-tight">
-                      {selectedProject.title}
-                    </h2>
-                 </div>
-              </div>
-
-              {/* Body */}
-              <div className="p-6 md:p-10 space-y-12">
-                 
-                 {/* Intro */}
-                 <div>
-                    <h3 className="text-sm font-bold text-[#0076c7] dark:text-brand-secondary uppercase tracking-widest mb-4">Resumen</h3>
-                    <p className="text-lg md:text-xl text-slate-700 dark:text-slate-200 leading-relaxed font-playfair italic">
-                       {selectedProject.subtitle}
-                    </p>
-                 </div>
-
-                 {/* Sections */}
-                 {selectedProject.sections.map((section) => (
-                   <div key={section.id} className="border-t border-slate-100 dark:border-white/10 pt-8">
-                      <h3 className="text-xl font-bold text-[#005e91] dark:text-brand-primary mb-6">{section.title}</h3>
-                      
-                      {/* Render based on type */}
-                      {section.type === 'TEXT' && (
-                        <div className="prose dark:prose-invert max-w-none text-slate-600 dark:text-slate-300">
-                          {renderTextWithImages(section.content as string)}
-                        </div>
-                      )}
-
-                      {section.type === 'BRIEF' && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                           {Object.entries(section.content as BriefData).map(([key, value]) => (
-                             <div key={key} className="bg-slate-50 dark:bg-white/5 p-4 rounded-xl">
-                               <h4 className="text-xs font-bold text-[#0076c7] dark:text-brand-secondary uppercase mb-2">
-                                 {key.replace(/([A-Z])/g, ' $1').trim()}
-                               </h4>
-                               <p className="text-sm text-slate-700 dark:text-slate-300">{value}</p>
-                             </div>
-                           ))}
-                        </div>
-                      )}
-
-                      {section.type === 'FLOWCHART' && (
-                        <div className="bg-[#f0f7ff] dark:bg-brand-dark/20 border border-[#b6d0ff] dark:border-brand-primary/30 rounded-2xl p-6">
-                           <div className="grid gap-6">
-                              {(Object.entries(section.content as FlowchartData)).map(([key, value]) => (
-                                <div key={key} className="flex flex-col md:flex-row md:items-start gap-2 md:gap-4">
-                                   <div className="min-w-[150px] font-bold text-[#005e91] dark:text-brand-primary">
-                                     {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
-                                   </div>
-                                   <div className="flex-1 text-slate-700 dark:text-white bg-white dark:bg-black/40 p-3 rounded-lg border border-transparent dark:border-white/10">
-                                      {value}
-                                   </div>
-                                </div>
-                              ))}
-                           </div>
-                        </div>
-                      )}
-
-                      {section.type === 'IMAGE' && (
-                        (() => {
-                          const contentStr = section.content as string;
-                          const tokenName = extractTokenName(contentStr);
-                          const resolvedSrc = tokenName ? imageMap[tokenName] : contentStr;
-
-                          if (!resolvedSrc) {
-                            return <p className="text-red-500 text-sm">No se encontró la imagen referenciada ({contentStr}).</p>;
-                          }
-
-                          return <img src={resolvedSrc} alt={section.title} className="w-full rounded-xl shadow-md" />;
-                        })()
-                      )}
-                   </div>
-                 ))}
-
-                 {/* Tags Footer */}
-                 <div className="pt-8 flex flex-wrap gap-2">
-                    {selectedProject.tags.map(tag => (
-                      <span key={tag} className="text-xs font-mono text-slate-400 dark:text-slate-500">#{tag}</span>
-                    ))}
-                 </div>
-              </div>
-           </div>
         </div>
       )}
-
     </div>
   );
 };
